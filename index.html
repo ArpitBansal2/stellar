@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StellarNet - Space Station Social</title>
+    <style>
+        /* [KEEPING PREVIOUS CSS - UI remains exactly the same] */
+        :root {
+            --background-dark: #030407;
+            --glowing-blue: #00f3ff;
+            --glowing-purple: #9d00ff;
+            --panel-background: rgba(11, 15, 30, 0.6);
+            --text-primary: #e0f2fe;
+            --text-secondary: #94a3b8;
+        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #0b1021 0%, var(--background-dark) 100%); font-family: 'Courier New', Courier, monospace; color: var(--text-primary); overflow-x: hidden; }
+        #stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .star { position: absolute; background-color: white; border-radius: 50%; box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.4); animation: twinkle 2s infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.8); } }
+        nav { background-color: rgba(7, 9, 19, 0.85); border-bottom: 2px solid var(--glowing-blue); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); border-radius: 0 0 20px 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
+        .logo { font-size: 1.8rem; font-weight: bold; color: var(--glowing-blue); text-transform: uppercase; text-shadow: 0 0 10px var(--glowing-blue); }
+        .logo span { color: var(--glowing-purple); text-shadow: 0 0 10px var(--glowing-purple); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: var(--text-primary); text-decoration: none; text-transform: uppercase; padding: 0.6rem 1.2rem; border: 1px solid transparent; border-radius: 20px; transition: 0.3s; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active-link { color: var(--glowing-blue); border-color: var(--glowing-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset; text-shadow: 0 0 8px var(--glowing-blue); }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .page-section { display: none; animation: fadeIn 0.5s ease-out; }
+        .page-section.active-page { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .content-panel { background-color: var(--panel-background); border: 1px solid rgba(0, 243, 255, 0.4); border-radius: 24px; padding: 2.5rem; margin-bottom: 2rem; backdrop-filter: blur(12px); position: relative; }
+        .content-panel::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: var(--glowing-blue); box-shadow: 0 0 15px var(--glowing-blue); }
+        h1, h2 { color: var(--glowing-blue); text-transform: uppercase; border-bottom: 1px solid rgba(0, 243, 255, 0.2); padding-bottom: 0.5rem; margin-top: 0; }
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: var(--glowing-purple); font-size: 0.95rem; }
+        input, textarea, select { width: 100%; padding: 1rem; background-color: rgba(0,0,0,0.6); border: 1px solid var(--text-secondary); color: var(--text-primary); border-radius: 20px; font-family: inherit; box-sizing: border-box; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--glowing-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset; }
+        button { background-color: transparent; color: var(--glowing-blue); border: 2px solid var(--glowing-blue); padding: 0.8rem 2.5rem; cursor: pointer; text-transform: uppercase; font-weight: bold; border-radius: 30px; transition: 0.3s; }
+        button:hover { background-color: rgba(0, 243, 255, 0.2); box-shadow: 0 0 20px var(--glowing-blue); color: white; }
+        .feed-post { border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 1.5rem 0; }
+        .post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 1rem; }
+        .avatar-circle { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, var(--glowing-blue), var(--glowing-purple)); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; }
+        .profile-card { background-color: var(--panel-background); border: 1px solid rgba(157, 0, 255, 0.4); padding: 2rem 1.5rem; text-align: center; border-radius: 24px; cursor: pointer; transition: 0.3s; }
+        .profile-card:hover { transform: translateY(-8px); border-color: var(--glowing-purple); box-shadow: 0 10px 25px rgba(157, 0, 255, 0.3); }
+        .large-avatar { width: 90px; height: 90px; border-radius: 50%; background-color: #222; margin: 0 auto 1.5rem; border: 3px solid var(--glowing-purple); }
+        .error-msg { color: #ff4a4a; text-shadow: 0 0 5px #ff4a4a; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <div id="stars-container"></div>
+
+    <nav>
+        <div class="logo">Stellar<span>Net</span></div>
+        <div class="nav-links" id="main-nav" style="display: none;">
+            <a class="nav-item active-link" onclick="switchPage('home')">Comm-Link</a>
+            <a class="nav-item" onclick="switchPage('crew'); loadCrewRoster();">Crew Roster</a>
+            <a class="nav-item" onclick="switchPage('profile'); loadMyProfile();">My Quarters</a>
+            <a class="nav-item" onclick="logoutUser()" style="border-color: #ff4a4a; color: #ff4a4a;">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Onboarding (Login / Register) Page -->
+        <div id="auth" class="page-section active-page">
+            <div class="content-panel" style="max-width: 500px; margin: 0 auto;">
+                <h2 id="auth-title">Station Onboarding (Register)</h2>
+                
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="auth-email" placeholder="cadet@space.fleet">
+                </div>
+
+                <div class="input-group">
+                    <label>Space Fleet Code (Password)</label>
+                    <input type="password" id="auth-password" placeholder="••••••••">
+                </div>
+
+                <!-- These fields hide on Login -->
+                <div id="register-fields">
+                    <div class="input-group">
+                        <label>Call Sign (Username)</label>
+                        <input type="text" id="auth-username" placeholder="e.g. StarLord99">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Assigned Department</label>
+                        <select id="auth-department">
+                            <option>Engineering</option>
+                            <option>Command</option>
+                            <option>Science</option>
+                            <option>Medical</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <p class="error-msg" id="auth-error"></p>
+                
+                <button style="width: 100%; margin-top: 1rem;" id="auth-btn" onclick="handleAuth()">Initialize Profile</button>
+                <p style="text-align: center; margin-top: 15px; cursor: pointer; color: var(--glowing-purple);" onclick="toggleAuthMode()" id="auth-toggle">Already stationed here? Login instead.</p>
+            </div>
+        </div>
+
+        <!-- Home Page / Feed -->
+        <div id="home" class="page-section">
+            <div class="content-panel">
+                <h2>Broadcast to Station</h2>
+                <div class="input-group">
+                    <textarea id="post-content" rows="3" placeholder="Enter transmission logs here..."></textarea>
+                </div>
+                <button onclick="submitPost()">Transmit Log</button>
+            </div>
+
+            <div class="content-panel">
+                <h2>Station Logs (Global Feed)</h2>
+                <!-- Posts will be injected here by Javascript -->
+                <div id="global-feed-container">Loading transmissions...</div>
+            </div>
+        </div>
+
+        <!-- Crew Roster Page -->
+        <div id="crew" class="page-section">
+            <div class="content-panel">
+                <h2>Station Crew Directory</h2>
+                <div class="directory-grid" id="crew-grid-container">
+                    <!-- Crew loaded here by Javascript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- My Profile Page -->
+        <div id="profile" class="page-section">
+            <div class="content-panel">
+                <h2>My Quarters (Profile)</h2>
+                <div style="display: flex; gap: 2rem; align-items: center; margin-bottom: 2rem;">
+                    <div class="large-avatar" style="width: 120px; height: 120px; font-size: 3rem; display:flex; align-items:center; justify-content:center;">👨‍🚀</div>
+                    <div>
+                        <h1 id="my-username" style="border: none; margin: 0;">Loading...</h1>
+                        <p style="color: var(--text-secondary);">Dept: <span id="my-dept">...</span></p>
+                        <p>Status: <span style="color: #4ade80;">Online</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Other Profile -->
+        <div id="other-profile" class="page-section">
+            <div class="content-panel">
+                <button onclick="switchPage('crew')" style="padding: 0.5rem 1rem; margin-bottom: 1rem;">&larr; Back to Roster</button>
+                <h2>Dossier</h2>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div class="large-avatar" style="width: 120px; height: 120px; font-size: 3rem; display:flex; align-items:center; justify-content:center;">👽</div>
+                    <div>
+                        <h3 id="other-username" style="margin: 0; font-size: 2rem; color: var(--glowing-blue);">Loading...</h3>
+                        <p style="color: var(--text-secondary);">Dept: <span id="other-dept">...</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Modular SDK Setup -->
+    <script type="module">
+        // 1. Import Firebase features
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // ==========================================
+        // 🚨 REPLACE THIS WITH YOUR FIREBASE CONFIG
+        // ==========================================
+        const firebaseConfig = {
+            
+        apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
+        authDomain: "stellar-net-fcee6.firebaseapp.com",
+        projectId: "stellar-net-fcee6",
+        storageBucket: "stellar-net-fcee6.firebasestorage.app",
+        messagingSenderId: "101106207112",
+        appId: "1:101106207112:web:eee63537767e71c344d23d"
+        };
+
+        // 2. Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global State
+        let isLoginMode = false;
+        let currentUserData = null;
+
+        // --- STARS ANIMATION (Kept exact same) ---
+        function generateStars() {
+            const container = document.getElementById('stars-container');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDuration = `${Math.random() * 4 + 1}s`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                container.appendChild(star);
+            }
+        }
+        generateStars();
+
+        // --- PAGE NAVIGATION ---
+        window.switchPage = function(targetPageId) {
+            document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active-page'));
+            document.getElementById(targetPageId).classList.add('active-page');
+            
+            if(targetPageId === 'home') loadFeed(); // Refresh feed when going home
+            
+            if (targetPageId !== 'other-profile' && targetPageId !== 'auth') {
+                document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active-link'));
+                if(targetPageId === 'home') document.querySelectorAll('.nav-item')[0].classList.add('active-link');
+                if(targetPageId === 'crew') document.querySelectorAll('.nav-item')[1].classList.add('active-link');
+                if(targetPageId === 'profile') document.querySelectorAll('.nav-item')[2].classList.add('active-link');
+            }
+        }
+
+        // --- AUTHENTICATION LOGIC ---
+        window.toggleAuthMode = function() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Station Login" : "Station Onboarding (Register)";
+            document.getElementById('auth-btn').innerText = isLoginMode ? "Access Terminal" : "Initialize Profile";
+            document.getElementById('auth-toggle').innerText = isLoginMode ? "New recruit? Register here." : "Already stationed here? Login instead.";
+            document.getElementById('register-fields').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('auth-error').style.display = "none";
+        }
+
+        window.handleAuth = async function() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errorBox = document.getElementById('auth-error');
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    const username = document.getElementById('auth-username').value;
+                    const department = document.getElementById('auth-department').value;
+                    
+                    if(!username) throw new Error("Call sign is required.");
+
+                    // Register in Firebase Auth
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    // Save extra user info in Firestore "users" collection
+                    await setDoc(doc(db, "users", user.uid), {
+                        username: username,
+                        department: department,
+                        email: email,
+                        uid: user.uid
+                    });
+                }
+            } catch (error) {
+                errorBox.innerText = error.message;
+                errorBox.style.display = "block";
+            }
+        }
+
+        window.logoutUser = function() {
+            signOut(auth);
+        }
+
+        // --- LISTEN FOR LOGIN/LOGOUT ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Logged in
+                document.getElementById('main-nav').style.display = "flex";
+                
+                // Fetch user data from database
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) currentUserData = userDoc.data();
+                
+                switchPage('home');
+            } else {
+                // Logged out
+                document.getElementById('main-nav').style.display = "none";
+                currentUserData = null;
+                switchPage('auth');
+            }
+        });
+
+        // --- DATABASE LOGIC: POSTING ---
+        window.submitPost = async function() {
+            const contentBox = document.getElementById('post-content');
+            const content = contentBox.value;
+            if(!content || !currentUserData) return;
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    content: content,
+                    authorId: auth.currentUser.uid,
+                    authorName: currentUserData.username,
+                    authorDept: currentUserData.department,
+                    timestamp: serverTimestamp()
+                });
+                contentBox.value = ""; // Clear box
+                loadFeed(); // Refresh feed
+            } catch (e) {
+                alert("Comm-Link error: " + e.message);
+            }
+        }
+
+        // --- DATABASE LOGIC: READING FEED ---
+        window.loadFeed = async function() {
+            const feedContainer = document.getElementById('global-feed-container');
+            feedContainer.innerHTML = "Fetching transmissions...";
+            
+            const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            feedContainer.innerHTML = ""; // Clear loading text
+            
+            if(querySnapshot.empty) {
+                feedContainer.innerHTML = "<p>No logs found in this sector.</p>";
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const post = doc.data();
+                const initial = post.authorName ? post.authorName.charAt(0).toUpperCase() : "?";
+                
+                feedContainer.innerHTML += `
+                    <div class="feed-post">
+                        <div class="post-header">
+                            <div class="avatar-circle">${initial}</div>
+                            <div>
+                                <strong>${post.authorName}</strong> 
+                                <span style="color:var(--text-secondary); font-size: 0.8rem;">[${post.authorDept}]</span>
+                            </div>
+                        </div>
+                        <p>${post.content}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // --- DATABASE LOGIC: CREW & PROFILES ---
+        window.loadCrewRoster = async function() {
+            const crewContainer = document.getElementById('crew-grid-container');
+            crewContainer.innerHTML = "Scanning personnel records...";
+            
+            const querySnapshot = await getDocs(collection(db, "users"));
+            crewContainer.innerHTML = "";
+            
+            querySnapshot.forEach((doc) => {
+                const user = doc.data();
+                const initial = user.username.charAt(0).toUpperCase();
+                
+                crewContainer.innerHTML += `
+                    <div class="profile-card" onclick="viewOtherProfile('${user.uid}')">
+                        <div class="avatar-circle" style="width:70px; height:70px; font-size: 2rem; margin: 0 auto 1rem;">${initial}</div>
+                        <h3>${user.username}</h3>
+                        <p style="color:var(--text-secondary);">${user.department}</p>
+                    </div>
+                `;
+            });
+        }
+
+        window.loadMyProfile = function() {
+            if(currentUserData) {
+                document.getElementById('my-username').innerText = currentUserData.username;
+                document.getElementById('my-dept').innerText = currentUserData.department;
+            }
+        }
+
+        window.viewOtherProfile = async function(uid) {
+            switchPage('other-profile');
+            document.getElementById('other-username').innerText = "Loading...";
+            
+            const userDoc = await getDoc(doc(db, "users", uid));
+            if(userDoc.exists()) {
+                const user = userDoc.data();
+                document.getElementById('other-username').innerText = user.username;
+                document.getElementById('other-dept').innerText = user.department;
+            }
+        }
+    </script>
+</body>
+</html>
