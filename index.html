@@ -426,7 +426,7 @@
             flex-wrap: wrap;
         }
 
-        .main-btn, .secondary-btn, .ghost-btn {
+        .main-btn, .secondary-btn, .ghost-btn, .small-btn {
             border-radius: 999px;
             padding: 0.8rem 1.4rem;
             font: inherit;
@@ -458,6 +458,31 @@
         }
 
         .ghost-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .small-btn {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: var(--text-main);
+            background: transparent;
+        }
+
+        .small-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .reply-btn {
+            border: none;
+            padding: 0.72rem 1.1rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            color: #07111d;
+            background: linear-gradient(135deg, var(--glow-blue), var(--glow-purple));
+            box-shadow: 0 8px 18px rgba(0, 229, 255, 0.18);
+        }
+
+        .reply-btn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
 
         .full-width { width: 100%; }
         .auth-toggle { text-align: center; margin-top: 1rem; color: var(--glow-purple); cursor: pointer; }
@@ -711,7 +736,7 @@
                         </div>
                         <div class="landing-point">
                             <strong>Broadcasts</strong>
-                            Share text, attach images or videos, like posts, and reply to threads.
+                            Share text, like posts, and reply to threads.
                         </div>
                         <div class="landing-point">
                             <strong>Messages</strong>
@@ -728,7 +753,7 @@
                     <div class="visual-card">
                         <h3>Home</h3>
                         <p>
-                            Crew status, mission chatter, media posts, and private comms — all in one clean station interface.
+                            Crew status, mission chatter, and private comms — all in one clean station interface.
                         </p>
                     </div>
 
@@ -788,33 +813,9 @@
         <section id="home" class="page-section">
             <div class="content-panel">
                 <h2 class="section-title">Broadcast to Station</h2>
-                <div class="composer-card">
-                    <div class="composer-top">
-                        <div class="avatar-circle" id="composer-avatar">?</div>
-                        <div class="composer-main">
-                            <div class="input-group" style="margin-bottom: 0;">
-                                <textarea id="post-content" placeholder="Share a mission log, update, image, or video..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="composer-actions">
-                        <div class="attach-row">
-                            <label class="file-label">
-                                <span>🖼 Image</span>
-                                <input type="file" id="post-image" accept="image/*" />
-                            </label>
-
-                            <label class="file-label">
-                                <span>🎥 Video</span>
-                                <input type="file" id="post-video" accept="video/*" />
-                            </label>
-
-                            <button class="small-btn" onclick="clearAttachments()">Clear Attachments</button>
-                        </div>
-
-                        <button class="main-btn" onclick="submitPost()">Transmit Log</button>
-                    </div>
+                <textarea id="post-content" placeholder="Share a mission log, update, or thought..."></textarea>
+                <div class="btn-row" style="margin-top: 1rem;">
+                    <button class="main-btn" onclick="submitPost()">Transmit Log</button>
                 </div>
             </div>
 
@@ -953,34 +954,25 @@
             serverTimestamp,
             onSnapshot
         } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL
-        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
-             apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
-              authDomain: "stellar-net-fcee6.firebaseapp.com",
-              projectId: "stellar-net-fcee6",
-              storageBucket: "stellar-net-fcee6.firebasestorage.app",
-              messagingSenderId: "101106207112",
-              appId: "1:101106207112:web:eee63537767e71c344d23d"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         let isLoginMode = false;
         let currentUserData = null;
         let viewingUserId = null;
         let currentChatUnsubscribe = null;
         let initialPageLoad = true;
-        let selectedImageFile = null;
-        let selectedVideoFile = null;
 
         function generateStars() {
             const container = document.getElementById("stars-container");
@@ -1044,60 +1036,7 @@
                 .replace(/'/g, "&#039;");
         }
 
-        async function uploadAttachment(file, folderName) {
-            const safeName = Date.now() + "-" + file.name.replace(/\s+/g, "-");
-            const fileRef = ref(storage, folderName + "/" + auth.currentUser.uid + "/" + safeName);
-            await uploadBytes(fileRef, file);
-            return await getDownloadURL(fileRef);
-        }
-
-        function updateComposerAvatar() {
-            const composerAvatar = document.getElementById("composer-avatar");
-            composerAvatar.innerText = getInitial(currentUserData?.username);
-        }
-
-        function renderAttachmentPreview() {
-            const preview = document.getElementById("attachment-preview");
-            preview.innerHTML = "";
-
-            if (!selectedImageFile && !selectedVideoFile) return;
-
-            if (selectedImageFile) {
-                const card = document.createElement("div");
-                card.className = "preview-card";
-                const imageUrl = URL.createObjectURL(selectedImageFile);
-                card.innerHTML = `<img src="${imageUrl}" alt="Image preview"><p class="text-soft" style="margin: 0.6rem 0 0;">${selectedImageFile.name}</p>`;
-                preview.appendChild(card);
-            }
-
-            if (selectedVideoFile) {
-                const card = document.createElement("div");
-                card.className = "preview-card";
-                const videoUrl = URL.createObjectURL(selectedVideoFile);
-                card.innerHTML = `<video src="${videoUrl}" controls></video><p class="text-soft" style="margin: 0.6rem 0 0;">${selectedVideoFile.name}</p>`;
-                preview.appendChild(card);
-            }
-        }
-
-        window.clearAttachments = function () {
-            selectedImageFile = null;
-            selectedVideoFile = null;
-            document.getElementById("post-image").value = "";
-            document.getElementById("post-video").value = "";
-            renderAttachmentPreview();
-        };
-
         generateStars();
-
-        document.getElementById("post-image").addEventListener("change", (event) => {
-            selectedImageFile = event.target.files[0] || null;
-            renderAttachmentPreview();
-        });
-
-        document.getElementById("post-video").addEventListener("change", (event) => {
-            selectedVideoFile = event.target.files[0] || null;
-            renderAttachmentPreview();
-        });
 
         window.switchPage = function (targetPageId) {
             document.querySelectorAll(".page-section").forEach((page) => page.classList.remove("active-page"));
@@ -1197,7 +1136,6 @@
                 if (!Array.isArray(currentUserData.friends)) currentUserData.friends = [];
                 if (!currentUserData.bio) currentUserData.bio = "";
                 await updateDoc(userRef, { status: "online" });
-                updateComposerAvatar();
             }
 
             if (initialPageLoad) {
@@ -1209,21 +1147,10 @@
         window.submitPost = async function () {
             const postBox = document.getElementById("post-content");
             const content = postBox.value.trim();
-            if (!content && !selectedImageFile && !selectedVideoFile) return;
+            if (!content) return;
             if (!currentUserData || !auth.currentUser) return;
 
             try {
-                let imageUrl = "";
-                let videoUrl = "";
-
-                if (selectedImageFile) {
-                    imageUrl = await uploadAttachment(selectedImageFile, "post-images");
-                }
-
-                if (selectedVideoFile) {
-                    videoUrl = await uploadAttachment(selectedVideoFile, "post-videos");
-                }
-
                 await addDoc(collection(db, "posts"), {
                     content,
                     authorId: auth.currentUser.uid,
@@ -1231,13 +1158,10 @@
                     authorDept: currentUserData.department,
                     likes: [],
                     replies: [],
-                    imageUrl,
-                    videoUrl,
                     timestamp: serverTimestamp()
                 });
 
                 postBox.value = "";
-                clearAttachments();
                 loadFeed();
             } catch (error) {
                 alert("Could not send transmission: " + error.message);
@@ -1272,18 +1196,6 @@
                         ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>`
                         : "";
 
-                    let mediaHtml = "";
-                    if (postData.imageUrl || postData.videoUrl) {
-                        mediaHtml += `<div class="post-media">`;
-                        if (postData.imageUrl) {
-                            mediaHtml += `<img src="${postData.imageUrl}" alt="Post image">`;
-                        }
-                        if (postData.videoUrl) {
-                            mediaHtml += `<video src="${postData.videoUrl}" controls></video>`;
-                        }
-                        mediaHtml += `</div>`;
-                    }
-
                     let repliesHtml = "";
                     if (repliesArray.length > 0) {
                         repliesHtml += `<div class="reply-list">`;
@@ -1308,14 +1220,11 @@
                                         <div class="text-soft" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
                                         <div class="post-badges">
                                             <span class="post-chip">Mission Broadcast</span>
-                                            ${postData.imageUrl ? '<span class="post-chip">Image Attached</span>' : ''}
-                                            ${postData.videoUrl ? '<span class="post-chip">Video Attached</span>' : ''}
                                         </div>
                                     </div>
                                 </div>
 
                                 <p class="post-content">${escapeHtml(postData.content || "")}</p>
-                                ${mediaHtml}
 
                                 <div class="post-actions">
                                     <button class="action-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
@@ -1327,7 +1236,7 @@
                                     <div class="text-soft">Reply to this transmission</div>
                                     <div class="reply-input-row">
                                         <input type="text" id="reply-input-${postId}" placeholder="Write a reply..." />
-                                        <button class="small-btn" onclick="addReply('${postId}')">Post Reply</button>
+                                        <button class="reply-btn" onclick="addReply('${postId}')">Post Reply</button>
                                     </div>
                                     ${repliesHtml}
                                 </div>
@@ -1479,7 +1388,6 @@
             currentUserData.username = newUsername;
             currentUserData.bio = newBio;
             loadMyProfile();
-            updateComposerAvatar();
         };
 
         window.viewOtherProfile = async function (uid) {
