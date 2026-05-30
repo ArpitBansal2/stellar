@@ -1,191 +1,672 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StellarNet - Space Station Social</title>
-    
+
     <style>
-        /* =========================================================
-           1. THEME COLORS & VARIABLES
-        ========================================================= */
         :root {
-            --glowing-blue: #00f3ff;
-            --glowing-purple: #9d00ff;
-            --panel-background: rgba(11, 15, 30, 0.65);
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --error-red: #ff4a4a;
-            --success-green: #4ade80;
+            --page-bg-1: #03050d;
+            --page-bg-2: #091427;
+            --page-bg-3: #14081f;
+            --glow-blue: #00e5ff;
+            --glow-purple: #9d4dff;
+            --panel-bg: rgba(10, 16, 28, 0.75);
+            --panel-border: rgba(0, 229, 255, 0.25);
+            --text-main: #e8f1ff;
+            --text-soft: #9fb0c9;
+            --green: #3ddc84;
+            --red: #ff5d73;
         }
 
-        /* =========================================================
-           2. GENERAL PAGE & BACKGROUND SETUP
-        ========================================================= */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            color: var(--text-primary); overflow-x: hidden; 
-            
-            background: linear-gradient(45deg, #020308, #0b1021, #060514, #0b1021);
-            background-size: 300% 300%;
-            animation: subtleGradient 15s ease infinite;
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--text-main);
+            background: linear-gradient(-45deg, var(--page-bg-1), var(--page-bg-2), var(--page-bg-3), var(--page-bg-2));
+            background-size: 250% 250%;
+            animation: pageGradient 18s ease infinite;
+            overflow-x: hidden;
         }
 
-        @keyframes subtleGradient {
+        @keyframes pageGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+            position: relative;
+            z-index: 2;
+        }
 
-        .text-muted { color: var(--text-secondary); }
-        .text-success { color: var(--success-green); }
-        .text-glow-blue { color: var(--glowing-blue); }
+        .text-soft { color: var(--text-soft); }
+        .text-online { color: var(--green); }
+        .empty-text { color: var(--text-soft); margin: 0; }
 
-        /* Status Dots */
-        .status-dot {
-            display: inline-block; width: 10px; height: 10px;
-            border-radius: 50%; margin-right: 5px;
+        #stars-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
         }
-        .status-online { background-color: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
-        .status-offline { background-color: var(--text-secondary); }
 
-        /* =========================================================
-           3. BACKGROUND STARS
-        ========================================================= */
-        #stars-container { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: -1; pointer-events: none; 
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            opacity: 0.8;
+            animation: twinkle 3s ease-in-out infinite;
         }
-        .star { 
-            position: absolute; background-color: white; border-radius: 50%; 
-            box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.3); 
-            animation: twinkle 3s infinite ease-in-out; 
-        }
-        @keyframes twinkle { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.2; } }
 
-        /* =========================================================
-           4. NAVIGATION BAR
-        ========================================================= */
-        nav { 
-            background-color: rgba(7, 9, 19, 0.85); border-bottom: 2px solid var(--glowing-blue); 
-            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); border-radius: 0 0 20px 20px; 
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.25; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.2); }
         }
-        .logo { 
-            font-size: 1.5rem; font-weight: bold; color: var(--glowing-blue); 
-            text-transform: uppercase; text-shadow: 0 0 10px var(--glowing-blue); 
-        }
-        .logo span { color: var(--glowing-purple); }
-        
-        .nav-links { display: flex; gap: 1.5rem; }
-        .nav-links a { 
-            color: var(--text-primary); text-decoration: none; font-size: 0.9rem;
-            text-transform: uppercase; padding: 0.5rem 1rem; border-radius: 20px; 
-            transition: 0.3s; cursor: pointer; border: 1px solid transparent;
-        }
-        .nav-links a:hover, .nav-links a.active-link { 
-            color: var(--glowing-blue); border-color: var(--glowing-blue); 
-            background-color: rgba(0, 243, 255, 0.05);
-        }
-        .logout-btn { color: var(--error-red) !important; }
-        .logout-btn:hover { border-color: var(--error-red) !important; background-color: rgba(255, 74, 74, 0.1) !important;}
 
-        /* =========================================================
-           5. PANELS & SECTIONS
-        ========================================================= */
-        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .space-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.22;
+        }
+
+        .glow-one {
+            width: 320px;
+            height: 320px;
+            top: 10%;
+            left: -60px;
+            background: var(--glow-blue);
+            animation: driftOne 16s ease-in-out infinite;
+        }
+
+        .glow-two {
+            width: 420px;
+            height: 420px;
+            right: -120px;
+            bottom: 5%;
+            background: var(--glow-purple);
+            animation: driftTwo 20s ease-in-out infinite;
+        }
+
+        @keyframes driftOne {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(60px, 30px); }
+        }
+
+        @keyframes driftTwo {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, -40px); }
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(5, 10, 18, 0.82);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+            backdrop-filter: blur(8px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--glow-blue);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+        }
+
+        .logo span { color: var(--glow-purple); }
+
+        .nav-links {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active-link {
+            border-color: rgba(0, 229, 255, 0.5);
+            color: var(--glow-blue);
+            background: rgba(0, 229, 255, 0.06);
+        }
+
+        .logout-btn { color: var(--red) !important; }
+
+        .logout-btn:hover {
+            border-color: rgba(255, 93, 115, 0.5) !important;
+            background: rgba(255, 93, 115, 0.08) !important;
+        }
+
+        .page-section {
+            display: none;
+            animation: pageFade 0.35s ease;
+        }
+
         .page-section.active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .content-panel { 
-            background-color: var(--panel-background); border: 1px solid rgba(0, 243, 255, 0.3); 
-            border-radius: 20px; padding: 2rem; margin-bottom: 2rem; 
-            backdrop-filter: blur(12px); position: relative; 
-        }
-        .content-panel::before { 
-            content: ''; position: absolute; top: 0; left: 0; 
-            width: 4px; height: 100%; background-color: var(--glowing-blue); 
-        }
-        .auth-panel { max-width: 450px; margin: 0 auto; }
-        h2 { 
-            color: var(--glowing-blue); text-transform: uppercase; border-bottom: 1px solid rgba(0, 243, 255, 0.2); 
-            padding-bottom: 0.5rem; margin-top: 0; font-size: 1.2rem;
+
+        @keyframes pageFade {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* =========================================================
-           6. INPUTS & BUTTONS
-        ========================================================= */
-        .input-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
-        
-        input, textarea, select { 
-            width: 100%; padding: 0.8rem; background-color: rgba(0,0,0,0.5); 
-            border: 1px solid var(--text-secondary); color: var(--text-primary); 
-            border-radius: 12px; font-family: inherit; box-sizing: border-box; 
+        .landing-page {
+            min-height: calc(100vh - 80px);
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+            align-items: center;
+            position: relative;
+            isolation: isolate;
         }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--glowing-blue); }
-        
-        button.main-btn { 
-            background-color: transparent; color: var(--glowing-blue); border: 2px solid var(--glowing-blue); 
-            padding: 0.8rem 2rem; cursor: pointer; text-transform: uppercase; font-weight: bold; 
-            border-radius: 25px; transition: 0.3s; 
-        }
-        button.main-btn:hover { background-color: rgba(0, 243, 255, 0.1); box-shadow: 0 0 15px var(--glowing-blue); }
-        .btn-full-width { width: 100%; margin-top: 1rem; }
-        .auth-toggle-link { text-align: center; margin-top: 15px; cursor: pointer; color: var(--glowing-purple); font-size: 0.9rem;}
 
-        /* =========================================================
-           7. POSTS FEED 
-        ========================================================= */
-        .feed-post { border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 1.5rem 0; }
-        .post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem; }
-        .post-actions { display: flex; gap: 1.5rem; margin-top: 1rem; }
+        .landing-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .landing-badge {
+            display: inline-block;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            background: rgba(0, 229, 255, 0.06);
+            color: var(--glow-blue);
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .landing-title {
+            margin: 0 0 1rem;
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+            line-height: 1.05;
+        }
+
+        .landing-title span { color: var(--glow-blue); }
+
+        .landing-subtitle {
+            max-width: 580px;
+            color: var(--text-soft);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 1.6rem;
+        }
+
+        .landing-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .landing-points {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .landing-point {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 1rem;
+        }
+
+        .landing-point strong {
+            display: block;
+            color: var(--glow-blue);
+            font-size: 1.1rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .landing-visual {
+            min-height: 520px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background:
+                radial-gradient(circle at 70% 30%, rgba(0, 229, 255, 0.18), transparent 30%),
+                radial-gradient(circle at 30% 70%, rgba(157, 77, 255, 0.2), transparent 28%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            z-index: 1;
+        }
+
+        .visual-card {
+            position: absolute;
+            left: 50px;
+            top: 70px;
+            width: 240px;
+            padding: 1rem;
+            border-radius: 18px;
+            background: rgba(7, 15, 26, 0.72);
+            border: 1px solid rgba(0, 229, 255, 0.18);
+            backdrop-filter: blur(8px);
+            z-index: 4;
+        }
+
+        .visual-card h3 {
+            margin: 0 0 0.5rem;
+            color: var(--glow-blue);
+            font-size: 1rem;
+        }
+
+        .visual-card p {
+            margin: 0;
+            color: var(--text-soft);
+            line-height: 1.5;
+            font-size: 0.92rem;
+        }
+
+        .planet {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            right: 55px;
+            top: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #7ef6ff, #2680c2 55%, #0b1838 100%);
+            box-shadow: 0 0 55px rgba(0, 229, 255, 0.22);
+            animation: floatPlanet 8s ease-in-out infinite;
+            z-index: 1;
+            opacity: 0.96;
+        }
+
+        .planet-ring {
+            position: absolute;
+            width: 340px;
+            height: 95px;
+            right: 18px;
+            top: 230px;
+            border: 3px solid rgba(201, 231, 255, 0.5);
+            border-radius: 50%;
+            transform: rotate(-15deg);
+            opacity: 0.78;
+            z-index: 2;
+        }
+
+        .mini-orbit {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            left: 70px;
+            bottom: 90px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 50%;
+            animation: spinOrbit 12s linear infinite;
+            z-index: 2;
+        }
+
+        .mini-orbit-dot {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            margin-left: -5px;
+            border-radius: 50%;
+            background: var(--glow-purple);
+            box-shadow: 0 0 14px rgba(157, 77, 255, 0.8);
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 160px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+            border-radius: 999px;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .shooting-star.one { top: 100px; left: -120px; animation: shootingStar 7s linear infinite; }
+        .shooting-star.two { top: 240px; left: -160px; animation: shootingStar 9s linear infinite 2s; }
+        .shooting-star.three { top: 360px; left: -180px; animation: shootingStar 8s linear infinite 4s; }
+
+        @keyframes floatPlanet {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        @keyframes spinOrbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes shootingStar {
+            0% { transform: translateX(0) translateY(0) rotate(20deg); opacity: 0; }
+            10%, 70% { opacity: 1; }
+            100% { transform: translateX(700px) translateY(140px) rotate(20deg); opacity: 0; }
+        }
+
+        .content-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 22px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        .content-panel::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 16px;
+            bottom: 16px;
+            width: 4px;
+            border-radius: 10px;
+            background: var(--glow-blue);
+        }
+
+        .auth-panel {
+            max-width: 480px;
+            margin: 3rem auto 0;
+        }
+
+        .section-title {
+            margin: 0 0 1.5rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--glow-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 1.1rem;
+        }
+
+        .input-group { margin-bottom: 1.2rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.45rem;
+            color: var(--text-soft);
+            font-size: 0.92rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(159, 176, 201, 0.35);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-main);
+            font: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: rgba(0, 229, 255, 0.7);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .main-btn, .secondary-btn, .ghost-btn {
+            border-radius: 999px;
+            padding: 0.8rem 1.4rem;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .main-btn {
+            border: 1px solid rgba(0, 229, 255, 0.6);
+            color: var(--glow-blue);
+            background: rgba(0, 229, 255, 0.06);
+        }
+
+        .main-btn:hover { background: rgba(0, 229, 255, 0.12); }
+
+        .secondary-btn {
+            border: 1px solid rgba(157, 77, 255, 0.6);
+            color: var(--glow-purple);
+            background: rgba(157, 77, 255, 0.06);
+        }
+
+        .secondary-btn:hover { background: rgba(157, 77, 255, 0.12); }
+
+        .ghost-btn {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: var(--text-main);
+            background: transparent;
+        }
+
+        .ghost-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .full-width { width: 100%; }
+        .auth-toggle { text-align: center; margin-top: 1rem; color: var(--glow-purple); cursor: pointer; }
+        .error-text { color: var(--red); margin: 0.8rem 0 0; display: none; }
+
+        .feed-post {
+            padding: 1.4rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+        }
+
+        .feed-post:last-child { border-bottom: none; }
+
+        .post-header {
+            display: flex;
+            gap: 0.9rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-circle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--glow-blue), var(--glow-purple));
+            color: #07111d;
+        }
+
+        .post-content { margin: 0.6rem 0 0; line-height: 1.65; }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
         .action-btn {
-            background: none; border: none; padding: 0; font-size: 0.9rem;
-            color: var(--text-secondary); cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; gap: 5px; font-family: inherit;
+            border: none;
+            background: none;
+            color: var(--text-soft);
+            cursor: pointer;
+            padding: 0;
+            font: inherit;
         }
-        .action-btn:hover { color: var(--glowing-blue); }
-        .delete-btn:hover { color: var(--error-red); }
-        .liked { color: var(--glowing-purple) !important; }
 
-        /* =========================================================
-           8. CREW DIRECTORY & AVATARS
-        ========================================================= */
-        .avatar-circle { 
-            width: 45px; height: 45px; border-radius: 50%; 
-            background: linear-gradient(45deg, var(--glowing-blue), var(--glowing-purple)); 
-            display: flex; align-items: center; justify-content: center; font-weight: bold; 
+        .action-btn:hover { color: var(--glow-blue); }
+        .action-btn.delete-btn:hover { color: var(--red); }
+        .liked { color: var(--glow-purple); }
+
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.2rem;
         }
-        .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
-        .profile-card { 
-            background-color: rgba(0,0,0,0.3); border: 1px solid rgba(157, 0, 255, 0.3); 
-            padding: 1.5rem; text-align: center; border-radius: 16px; cursor: pointer; transition: 0.3s; 
+
+        .profile-card {
+            border-radius: 18px;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 0.25s ease;
+            cursor: pointer;
         }
-        .profile-card:hover { 
-            transform: translateY(-5px); border-color: var(--glowing-purple); 
-            box-shadow: 0 5px 15px rgba(157, 0, 255, 0.2); 
+
+        .profile-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(157, 77, 255, 0.35);
         }
-        .large-avatar { 
-            width: 90px; height: 90px; border-radius: 50%; background-color: #111; 
-            border: 2px solid var(--glowing-purple); font-size: 2.5rem; 
-            display: flex; align-items: center; justify-content: center;
+
+        .crew-grid-avatar {
+            width: 62px;
+            height: 62px;
+            margin: 0 auto 0.9rem;
+            font-size: 1.1rem;
         }
-        .crew-grid-avatar { width: 60px; height: 60px; font-size: 1.5rem; margin: 0 auto 1rem; }
-        .profile-header-layout { display: flex; gap: 2rem; align-items: center; margin-bottom: 1.5rem; }
+
+        .profile-header-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .large-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(157, 77, 255, 0.5);
+            font-size: 2.2rem;
+        }
+
+        .profile-name { margin: 0; font-size: 2rem; }
+        .profile-meta { margin: 0.35rem 0; }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.35rem;
+        }
+
+        .status-online {
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(61, 220, 132, 0.6);
+        }
+
+        .status-offline { background: var(--text-soft); }
+
+        .friend-added {
+            color: var(--red);
+            border-color: rgba(255, 93, 115, 0.55);
+            background: rgba(255, 93, 115, 0.06);
+        }
+
+        .chat-box {
+            height: 420px;
+            overflow-y: auto;
+            border-radius: 18px;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .chat-bubble {
+            max-width: 72%;
+            padding: 0.8rem 1rem;
+            border-radius: 18px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .chat-sent {
+            align-self: flex-end;
+            background: rgba(0, 229, 255, 0.09);
+            border: 1px solid rgba(0, 229, 255, 0.35);
+        }
+
+        .chat-received {
+            align-self: flex-start;
+            background: rgba(157, 77, 255, 0.1);
+            border: 1px solid rgba(157, 77, 255, 0.35);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input-row input { flex: 1; }
+
+        @media (max-width: 900px) {
+            .landing-page { grid-template-columns: 1fr; }
+            .landing-visual { min-height: 420px; }
+            .landing-points { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 680px) {
+            nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .profile-header-layout { align-items: flex-start; }
+            .chat-input-row { flex-direction: column; }
+            .landing-buttons, .btn-row { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
-    
     <div id="stars-container"></div>
+    <div class="space-glow glow-one"></div>
+    <div class="space-glow glow-two"></div>
 
     <nav>
         <div class="logo">Stellar<span>Net</span></div>
+
         <div class="nav-links" id="main-nav" style="display: none;">
-            <a class="nav-item active-link" onclick="switchPage('home')">Comm-Link</a>
+            <a class="nav-item active-link" onclick="switchPage('landing')">Home</a>
+            <a class="nav-item" onclick="switchPage('home')">Comm-Link</a>
             <a class="nav-item" onclick="switchPage('crew'); loadCrewRoster();">Crew Roster</a>
             <a class="nav-item" onclick="switchPage('profile'); loadMyProfile();">My Quarters</a>
             <a class="nav-item logout-btn" onclick="logoutUser()">Log Out</a>
@@ -193,24 +674,90 @@
     </nav>
 
     <div class="container">
-        
-        <!-- PAGE 1: AUTHENTICATION -->
-        <div id="auth" class="page-section active-page">
+        <section id="landing" class="page-section active-page">
+            <div class="landing-page">
+                <div class="landing-content">
+                    <div class="landing-badge">Virtual Space Station Social Platform</div>
+
+                    <h1 class="landing-title">
+                        Explore the station.
+                        <br />
+                        Build your <span>crew network.</span>
+                    </h1>
+
+                    <p class="landing-subtitle">
+                        StellarNet is a space-themed social platform where cadets connect through crew profiles,
+                        live posts, contacts, and secure direct messages — all inside a futuristic station interface.
+                    </p>
+
+                    <div class="landing-buttons" id="landing-auth-buttons">
+                        <button class="main-btn" onclick="openAuthPage('register')">Launch Registration</button>
+                        <button class="secondary-btn" onclick="openAuthPage('login')">Open Login</button>
+                    </div>
+
+                    <div class="landing-buttons" id="landing-enter-button" style="display: none;">
+                        <button class="main-btn" onclick="switchPage('home')">Enter Station Feed &rarr;</button>
+                    </div>
+
+                    <div class="landing-points">
+                        <div class="landing-point">
+                            <strong>Profiles</strong>
+                            Personal quarters, dossier view, and active crew roster.
+                        </div>
+                        <div class="landing-point">
+                            <strong>Feed</strong>
+                            Post updates, like transmissions, and delete your own logs.
+                        </div>
+                        <div class="landing-point">
+                            <strong>Messages</strong>
+                            Add contacts and chat through direct secure comms.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="landing-visual">
+                    <div class="shooting-star one"></div>
+                    <div class="shooting-star two"></div>
+                    <div class="shooting-star three"></div>
+
+                    <div class="visual-card">
+                        <h3>Home</h3>
+                        <p>
+                            Crew status, mission chatter, and private comms — all connected to Firebase while
+                            still staying simple enough to edit easily.
+                        </p>
+                    </div>
+
+                    <div class="planet"></div>
+                    <div class="planet-ring"></div>
+
+                    <div class="mini-orbit">
+                        <div class="mini-orbit-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="auth" class="page-section">
             <div class="content-panel auth-panel">
-                <h2 id="auth-title">Station Onboarding</h2>
+                <h2 class="section-title" id="auth-title">Station Onboarding</h2>
+
                 <div class="input-group">
                     <label>Email Address</label>
-                    <input type="email" id="auth-email" placeholder="cadet@space.fleet">
+                    <input type="email" id="auth-email" placeholder="cadet@space.fleet" />
                 </div>
+
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="auth-password" placeholder="••••••••">
+                    <input type="password" id="auth-password" placeholder="••••••••" />
                 </div>
+
                 <div id="register-fields">
                     <div class="input-group">
                         <label>Call Sign (Username)</label>
-                        <input type="text" id="auth-username" placeholder="e.g. StarLord99">
+                        <input type="text" id="auth-username" placeholder="e.g. StarLord99" />
                     </div>
+
                     <div class="input-group">
                         <label>Assigned Department</label>
                         <select id="auth-department">
@@ -221,77 +768,144 @@
                         </select>
                     </div>
                 </div>
-                <p id="auth-error" style="color: var(--error-red); display: none;"></p>
-                <button class="main-btn btn-full-width" id="auth-btn" onclick="handleAuth()">Initialize Profile</button>
-                <p class="auth-toggle-link" id="auth-toggle" onclick="toggleAuthMode()">Already stationed here? Login instead.</p>
-            </div>
-        </div>
 
-        <!-- PAGE 2: HOME FEED -->
-        <div id="home" class="page-section">
+                <p id="auth-error" class="error-text"></p>
+
+                <button class="main-btn full-width" id="auth-btn" onclick="handleAuth()">
+                    Initialize Profile
+                </button>
+
+                <p class="auth-toggle" id="auth-toggle" onclick="toggleAuthMode()">
+                    Already stationed here? Login instead.
+                </p>
+            </div>
+        </section>
+
+        <section id="home" class="page-section">
             <div class="content-panel">
-                <h2>Broadcast to Station</h2>
+                <h2 class="section-title">Broadcast to Station</h2>
                 <div class="input-group">
-                    <textarea id="post-content" rows="3" placeholder="Enter transmission logs here..."></textarea>
+                    <textarea id="post-content" placeholder="Enter transmission logs here..."></textarea>
                 </div>
                 <button class="main-btn" onclick="submitPost()">Transmit Log</button>
             </div>
+
             <div class="content-panel">
-                <h2>Station Logs (Global Feed)</h2>
+                <h2 class="section-title">Station Logs</h2>
                 <div id="global-feed-container">Loading transmissions...</div>
             </div>
-        </div>
+        </section>
 
-        <!-- PAGE 3: CREW ROSTER -->
-        <div id="crew" class="page-section">
+        <section id="crew" class="page-section">
             <div class="content-panel">
-                <h2>Station Crew Directory</h2>
-                <div class="directory-grid" id="crew-grid-container">
-                    <!-- Javascript populates crew here -->
-                </div>
+                <h2 class="section-title">Crew Roster</h2>
+                <div class="directory-grid" id="crew-grid-container"></div>
             </div>
-        </div>
+        </section>
 
-        <!-- PAGE 4: MY PROFILE -->
-        <div id="profile" class="page-section">
+        <section id="profile" class="page-section">
             <div class="content-panel">
-                <h2>My Quarters</h2>
+                <h2 class="section-title">My Quarters</h2>
+
                 <div class="profile-header-layout">
                     <div class="large-avatar">👨‍🚀</div>
                     <div>
-                        <h1 id="my-username" style="margin: 0; font-size: 2rem;">Loading...</h1>
-                        <p class="text-muted" style="margin: 5px 0;">Dept: <span id="my-dept">...</span></p>
-                        <p style="margin: 5px 0;"><span class="status-dot status-online"></span> <span class="text-success">Online</span></p>
+                        <h1 class="profile-name" id="my-username">Loading...</h1>
+                        <p class="profile-meta text-soft">
+                            Department: <span id="my-dept">...</span>
+                        </p>
+                        <p class="profile-meta">
+                            <span class="status-dot status-online"></span>
+                            <span class="text-online">Online</span>
+                        </p>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- PAGE 5: VIEW OTHER USER PROFILE (RESTORED!) -->
-        <div id="other-profile" class="page-section">
+                <h2 class="section-title" style="margin-top: 2rem;">My Contacts</h2>
+                <div class="directory-grid" id="my-friends-container">
+                    <p class="empty-text">Loading contacts...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="other-profile" class="page-section">
             <div class="content-panel">
-                <button class="main-btn" onclick="switchPage('crew')" style="padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1rem; border-color: var(--text-secondary); color: var(--text-primary);">&larr; Back to Roster</button>
-                <h2>Dossier</h2>
+                <button class="ghost-btn" onclick="switchPage('crew')" style="margin-bottom: 1rem;">
+                    &larr; Back to Roster
+                </button>
+
+                <h2 class="section-title">Dossier</h2>
+
                 <div class="profile-header-layout">
                     <div class="large-avatar">👽</div>
                     <div>
-                        <h3 id="other-username" class="text-glow-blue" style="margin: 0; font-size: 2rem;">Loading...</h3>
-                        <p class="text-muted" style="margin: 5px 0;">Dept: <span id="other-dept">...</span></p>
-                        <p style="margin: 5px 0;"><span id="other-status-dot" class="status-dot"></span> <span id="other-status-text">...</span></p>
+                        <h1 class="profile-name" id="other-username">Loading...</h1>
+                        <p class="profile-meta text-soft">
+                            Department: <span id="other-dept">...</span>
+                        </p>
+                        <p class="profile-meta">
+                            <span id="other-status-dot" class="status-dot"></span>
+                            <span id="other-status-text">...</span>
+                        </p>
                     </div>
                 </div>
-            </div>
-        </div>
 
+                <div class="btn-row" style="margin-top: 1.5rem;">
+                    <button class="main-btn" id="friend-btn" onclick="toggleFriend()">
+                        + Add to Contacts
+                    </button>
+                    <button class="secondary-btn" onclick="openChat()">
+                        ✉ Secure Comm
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="chat-page" class="page-section">
+            <div class="content-panel">
+                <button class="ghost-btn" onclick="switchPage('other-profile')" style="margin-bottom: 1rem;">
+                    &larr; Back to Dossier
+                </button>
+
+                <h2 class="section-title" id="chat-title">Secure Comm</h2>
+
+                <div class="chat-box" id="chat-history">
+                    <p class="empty-text">Initializing secure connection...</p>
+                </div>
+
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Type message..." />
+                    <button class="main-btn" onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <!-- =========================================================
-         JAVASCRIPT & FIREBASE LOGIC
-    ========================================================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            setDoc,
+            getDoc,
+            updateDoc,
+            deleteDoc,
+            query,
+            orderBy,
+            where,
+            serverTimestamp,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
@@ -308,233 +922,414 @@
 
         let isLoginMode = false;
         let currentUserData = null;
+        let viewingUserId = null;
+        let currentChatUnsubscribe = null;
+        let initialPageLoad = true;
 
-        // Background Stars Animation
         function generateStars() {
-            const container = document.getElementById('stars-container');
-            for (let i = 0; i < 150; i++) {
-                const star = document.createElement('div');
-                star.classList.add('star');
-                star.style.width = `${Math.random() * 2 + 1}px`;
-                star.style.height = star.style.width;
-                star.style.left = `${Math.random() * 100}vw`;
-                star.style.top = `${Math.random() * 100}vh`;
-                star.style.animationDelay = `${Math.random() * 3}s`;
+            const container = document.getElementById("stars-container");
+            for (let i = 0; i < 180; i++) {
+                const star = document.createElement("div");
+                const size = Math.random() * 2.2 + 0.8;
+                star.className = "star";
+                star.style.width = size + "px";
+                star.style.height = size + "px";
+                star.style.left = Math.random() * 100 + "vw";
+                star.style.top = Math.random() * 100 + "vh";
+                star.style.animationDelay = Math.random() * 4 + "s";
+                star.style.animationDuration = Math.random() * 3 + 2 + "s";
                 container.appendChild(star);
             }
         }
-        generateStars();
 
-        // Switch Pages
-        window.switchPage = function(targetPageId) {
-            document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active-page'));
-            document.getElementById(targetPageId).classList.add('active-page');
-            
-            if(targetPageId === 'home') loadFeed(); 
-            
-            if (targetPageId !== 'auth' && targetPageId !== 'other-profile') {
-                document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active-link'));
-                if(targetPageId === 'home') document.querySelectorAll('.nav-item')[0].classList.add('active-link');
-                if(targetPageId === 'crew') document.querySelectorAll('.nav-item')[1].classList.add('active-link');
-                if(targetPageId === 'profile') document.querySelectorAll('.nav-item')[2].classList.add('active-link');
+        function getInitial(name) {
+            return name ? name.charAt(0).toUpperCase() : "?";
+        }
+
+        function getChatId(uidOne, uidTwo) {
+            return uidOne < uidTwo ? uidOne + "_" + uidTwo : uidTwo + "_" + uidOne;
+        }
+
+        function stopChatListener() {
+            if (currentChatUnsubscribe) {
+                currentChatUnsubscribe();
+                currentChatUnsubscribe = null;
             }
         }
 
-        // Auth Form Toggle
-        window.toggleAuthMode = function() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "Station Login" : "Station Onboarding";
-            document.getElementById('auth-btn').innerText = isLoginMode ? "Access Terminal" : "Initialize Profile";
-            document.getElementById('auth-toggle').innerText = isLoginMode ? "New recruit? Register here." : "Already stationed here? Login instead.";
-            document.getElementById('register-fields').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('auth-error').style.display = "none";
+        function setAuthMode(loginMode) {
+            isLoginMode = loginMode;
+            document.getElementById("auth-title").innerText = isLoginMode ? "Station Login" : "Station Onboarding";
+            document.getElementById("auth-btn").innerText = isLoginMode ? "Access Terminal" : "Initialize Profile";
+            document.getElementById("auth-toggle").innerText = isLoginMode ? "New recruit? Register here." : "Already stationed here? Login instead.";
+            document.getElementById("register-fields").style.display = isLoginMode ? "none" : "block";
+            document.getElementById("auth-error").style.display = "none";
+            document.getElementById("auth-error").innerText = "";
         }
 
-        // Login / Register 
-        window.handleAuth = async function() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const errorBox = document.getElementById('auth-error');
+        generateStars();
+
+        window.switchPage = function (targetPageId) {
+            document.querySelectorAll(".page-section").forEach((page) => page.classList.remove("active-page"));
+            document.getElementById(targetPageId).classList.add("active-page");
+
+            if (targetPageId !== "chat-page") stopChatListener();
+            if (targetPageId === "home") loadFeed();
+
+            const navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach((item) => item.classList.remove("active-link"));
+
+            if (targetPageId === "landing" && navItems[0]) navItems[0].classList.add("active-link");
+            if (targetPageId === "home" && navItems[1]) navItems[1].classList.add("active-link");
+            if (targetPageId === "crew" && navItems[2]) navItems[2].classList.add("active-link");
+            if (targetPageId === "profile" && navItems[3]) navItems[3].classList.add("active-link");
+        };
+
+        window.openAuthPage = function (mode) {
+            setAuthMode(mode === "login");
+            switchPage("auth");
+        };
+
+        window.toggleAuthMode = function () {
+            setAuthMode(!isLoginMode);
+        };
+
+        window.handleAuth = async function () {
+            const email = document.getElementById("auth-email").value.trim();
+            const password = document.getElementById("auth-password").value.trim();
+            const username = document.getElementById("auth-username").value.trim();
+            const department = document.getElementById("auth-department").value;
+            const authError = document.getElementById("auth-error");
 
             try {
                 if (isLoginMode) {
                     await signInWithEmailAndPassword(auth, email, password);
                 } else {
-                    const username = document.getElementById('auth-username').value;
-                    const department = document.getElementById('auth-department').value;
-                    if(!username) throw new Error("Call sign is required.");
-
+                    if (!username) throw new Error("Call sign is required.");
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, "users", userCredential.user.uid), {
-                        username: username, department: department, email: email, uid: userCredential.user.uid, status: "online" 
-                    });
+                    const newUserData = {
+                        username,
+                        department,
+                        email,
+                        uid: userCredential.user.uid,
+                        status: "online",
+                        friends: []
+                    };
+                    await setDoc(doc(db, "users", userCredential.user.uid), newUserData);
+                    currentUserData = newUserData;
                 }
-            } catch (error) {
-                errorBox.innerText = error.message; errorBox.style.display = "block";
-            }
-        }
 
-        // Logout
-        window.logoutUser = async function() {
-            if(auth.currentUser) {
+                switchPage("home");
+            } catch (error) {
+                authError.style.display = "block";
+                authError.innerText = error.message;
+            }
+        };
+
+        window.logoutUser = async function () {
+            if (auth.currentUser) {
                 await updateDoc(doc(db, "users", auth.currentUser.uid), { status: "offline" });
             }
-            signOut(auth);
-        }
+            stopChatListener();
+            await signOut(auth);
+            switchPage("landing");
+        };
 
-        // Auth State Listener
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('main-nav').style.display = "flex";
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    currentUserData = userDoc.data();
-                    await updateDoc(doc(db, "users", user.uid), { status: "online" });
+            const mainNav = document.getElementById("main-nav");
+            const authButtons = document.getElementById("landing-auth-buttons");
+            const enterButton = document.getElementById("landing-enter-button");
+
+            if (!user) {
+                mainNav.style.display = "none";
+                authButtons.style.display = "flex";
+                enterButton.style.display = "none";
+                currentUserData = null;
+                viewingUserId = null;
+
+                if (initialPageLoad) {
+                    initialPageLoad = false;
+                    switchPage("landing");
                 }
-                switchPage('home');
-            } else {
-                document.getElementById('main-nav').style.display = "none";
-                currentUserData = null; switchPage('auth');
+                return;
+            }
+
+            mainNav.style.display = "flex";
+            authButtons.style.display = "none";
+            enterButton.style.display = "flex";
+
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                currentUserData = userSnap.data();
+                if (!Array.isArray(currentUserData.friends)) currentUserData.friends = [];
+                await updateDoc(userRef, { status: "online" });
+            }
+
+            if (initialPageLoad) {
+                initialPageLoad = false;
+                switchPage("landing");
             }
         });
 
-        // Submit Post
-        window.submitPost = async function() {
-            const contentBox = document.getElementById('post-content');
-            const content = contentBox.value;
-            if(!content || !currentUserData) return;
+        window.submitPost = async function () {
+            const postBox = document.getElementById("post-content");
+            const content = postBox.value.trim();
+            if (!content || !currentUserData || !auth.currentUser) return;
 
             try {
                 await addDoc(collection(db, "posts"), {
-                    content: content, authorId: auth.currentUser.uid, authorName: currentUserData.username,
-                    authorDept: currentUserData.department, likes: [], timestamp: serverTimestamp()
+                    content,
+                    authorId: auth.currentUser.uid,
+                    authorName: currentUserData.username,
+                    authorDept: currentUserData.department,
+                    likes: [],
+                    timestamp: serverTimestamp()
                 });
-                contentBox.value = ""; loadFeed(); 
-            } catch (e) { alert("Error: " + e.message); }
-        }
-
-        // Load Feed
-        window.loadFeed = async function() {
-            const feedContainer = document.getElementById('global-feed-container');
-            feedContainer.innerHTML = "Fetching transmissions...";
-            
-            const postQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(postQuery);
-            
-            feedContainer.innerHTML = ""; 
-            if(querySnapshot.empty) {
-                feedContainer.innerHTML = "<p class='text-muted'>No logs found in this sector.</p>"; return;
+                postBox.value = "";
+                loadFeed();
+            } catch (error) {
+                alert("Could not send transmission: " + error.message);
             }
+        };
 
-            querySnapshot.forEach((document) => {
-                const post = document.data();
-                const postId = document.id; 
-                const initial = post.authorName ? post.authorName.charAt(0).toUpperCase() : "?";
-                
-                const likesArray = post.likes || [];
-                const hasLiked = likesArray.includes(auth.currentUser.uid);
-                const likeClass = hasLiked ? "liked" : "";
-                
-                const isMyPost = post.authorId === auth.currentUser.uid;
-                const deleteBtnHtml = isMyPost ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>` : "";
+        window.loadFeed = async function () {
+            const feedContainer = document.getElementById("global-feed-container");
+            feedContainer.innerHTML = "<p class='empty-text'>Fetching transmissions...</p>";
 
-                feedContainer.innerHTML += `
-                    <div class="feed-post">
-                        <div class="post-header">
-                            <div class="avatar-circle">${initial}</div>
-                            <div>
-                                <strong>${post.authorName}</strong> 
-                                <span class="text-muted" style="font-size: 0.8rem; margin-left: 5px;">[${post.authorDept}]</span>
+            try {
+                const postQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(postQuery);
+
+                if (querySnapshot.empty) {
+                    feedContainer.innerHTML = "<p class='empty-text'>No logs found in this sector.</p>";
+                    return;
+                }
+
+                feedContainer.innerHTML = "";
+
+                querySnapshot.forEach((postDocument) => {
+                    const postData = postDocument.data();
+                    const postId = postDocument.id;
+                    const likesArray = Array.isArray(postData.likes) ? postData.likes : [];
+                    const userHasLiked = auth.currentUser && likesArray.includes(auth.currentUser.uid);
+                    const likeClass = userHasLiked ? "liked" : "";
+                    const isMyPost = auth.currentUser && postData.authorId === auth.currentUser.uid;
+                    const deleteButtonHtml = isMyPost
+                        ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>`
+                        : "";
+
+                    feedContainer.innerHTML += `
+                        <div class="feed-post">
+                            <div class="post-header">
+                                <div class="avatar-circle">${getInitial(postData.authorName)}</div>
+                                <div>
+                                    <strong>${postData.authorName}</strong>
+                                    <div class="text-soft" style="font-size: 0.85rem;">[${postData.authorDept}]</div>
+                                </div>
+                            </div>
+                            <p class="post-content">${postData.content}</p>
+                            <div class="post-actions">
+                                <button class="action-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
+                                ${deleteButtonHtml}
                             </div>
                         </div>
-                        <p style="margin: 0.5rem 0;">${post.content}</p>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
-                            ${deleteBtnHtml}
-                        </div>
-                    </div>
-                `;
-            });
-        }
+                    `;
+                });
+            } catch (error) {
+                console.log(error.message);
+                feedContainer.innerHTML = "<p class='empty-text'>Could not load transmissions.</p>";
+            }
+        };
 
-        // Toggle Like
-        window.toggleLike = async function(postId) {
+        window.toggleLike = async function (postId) {
             const postRef = doc(db, "posts", postId);
-            const postDoc = await getDoc(postRef);
-            if(postDoc.exists()) {
-                let currentLikes = postDoc.data().likes || [];
-                const myUid = auth.currentUser.uid;
-                if(currentLikes.includes(myUid)) currentLikes = currentLikes.filter(id => id !== myUid);
-                else currentLikes.push(myUid);
-                await updateDoc(postRef, { likes: currentLikes });
-                loadFeed();
-            }
-        }
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists() || !auth.currentUser) return;
 
-        // Delete Post
-        window.deletePost = async function(postId) {
-            if(confirm("Are you sure you want to delete this transmission?")) {
-                await deleteDoc(doc(db, "posts", postId)); loadFeed();
-            }
-        }
+            let likes = postSnap.data().likes || [];
+            const myUid = auth.currentUser.uid;
+            if (likes.includes(myUid)) likes = likes.filter((id) => id !== myUid);
+            else likes.push(myUid);
 
-        // Load Crew Roster (RESTORED ONCLICK EVENT!)
-        window.loadCrewRoster = async function() {
-            const crewContainer = document.getElementById('crew-grid-container');
-            crewContainer.innerHTML = "Scanning personnel records...";
-            const querySnapshot = await getDocs(collection(db, "users"));
+            await updateDoc(postRef, { likes });
+            loadFeed();
+        };
+
+        window.deletePost = async function (postId) {
+            if (!confirm("Are you sure you want to delete this transmission?")) return;
+            await deleteDoc(doc(db, "posts", postId));
+            loadFeed();
+        };
+
+        window.loadCrewRoster = async function () {
+            const crewContainer = document.getElementById("crew-grid-container");
+            crewContainer.innerHTML = "<p class='empty-text'>Scanning personnel records...</p>";
+            const usersSnapshot = await getDocs(collection(db, "users"));
             crewContainer.innerHTML = "";
-            
-            querySnapshot.forEach((doc) => {
-                const user = doc.data();
-                const initial = user.username.charAt(0).toUpperCase();
-                const isOnline = user.status === "online";
-                const dotClass = isOnline ? "status-online" : "status-offline";
-                const statusText = isOnline ? "Online" : "Offline";
-                
-                // Added onclick back here
+
+            usersSnapshot.forEach((userDocument) => {
+                const userData = userDocument.data();
+                if (auth.currentUser && userData.uid === auth.currentUser.uid) return;
+
+                const onlineClass = userData.status === "online" ? "status-online" : "status-offline";
+                const statusText = userData.status === "online" ? "Online" : "Offline";
+
                 crewContainer.innerHTML += `
-                    <div class="profile-card" onclick="viewOtherProfile('${user.uid}')">
-                        <div class="avatar-circle crew-grid-avatar">${initial}</div>
-                        <h3 style="margin: 0.5rem 0;">${user.username}</h3>
-                        <p class="text-muted" style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">${user.department}</p>
-                        <p style="margin: 0; font-size: 0.85rem;"><span class="status-dot ${dotClass}"></span> ${statusText}</p>
+                    <div class="profile-card" onclick="viewOtherProfile('${userData.uid}')">
+                        <div class="avatar-circle crew-grid-avatar">${getInitial(userData.username)}</div>
+                        <h3 style="margin: 0 0 0.4rem;">${userData.username}</h3>
+                        <p class="text-soft" style="margin: 0 0 0.5rem;">${userData.department}</p>
+                        <p style="margin: 0;"><span class="status-dot ${onlineClass}"></span>${statusText}</p>
                     </div>
                 `;
             });
-        }
 
-        // Load My Profile
-        window.loadMyProfile = function() {
-            if(currentUserData) {
-                document.getElementById('my-username').innerText = currentUserData.username;
-                document.getElementById('my-dept').innerText = currentUserData.department;
+            if (crewContainer.innerHTML.trim() === "") {
+                crewContainer.innerHTML = "<p class='empty-text'>No other crew members found yet.</p>";
             }
-        }
+        };
 
-        // View Other Profile (RESTORED FUNCTION!)
-        window.viewOtherProfile = async function(uid) {
-            switchPage('other-profile');
-            document.getElementById('other-username').innerText = "Loading...";
-            
-            const userDoc = await getDoc(doc(db, "users", uid));
-            if(userDoc.exists()) {
-                const user = userDoc.data();
-                document.getElementById('other-username').innerText = user.username;
-                document.getElementById('other-dept').innerText = user.department;
-                
-                const isOnline = user.status === "online";
-                document.getElementById('other-status-dot').className = "status-dot " + (isOnline ? "status-online" : "status-offline");
-                document.getElementById('other-status-text').innerText = isOnline ? "Online" : "Offline";
-                if(isOnline) {
-                    document.getElementById('other-status-text').classList.add("text-success");
-                    document.getElementById('other-status-text').classList.remove("text-muted");
-                } else {
-                    document.getElementById('other-status-text').classList.add("text-muted");
-                    document.getElementById('other-status-text').classList.remove("text-success");
+        window.loadMyProfile = async function () {
+            if (!currentUserData) return;
+            document.getElementById("my-username").innerText = currentUserData.username;
+            document.getElementById("my-dept").innerText = currentUserData.department;
+
+            const friendsContainer = document.getElementById("my-friends-container");
+            const myFriends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
+
+            if (myFriends.length === 0) {
+                friendsContainer.innerHTML = "<p class='empty-text'>No contacts added yet. Browse the crew roster.</p>";
+                return;
+            }
+
+            friendsContainer.innerHTML = "";
+            const usersSnapshot = await getDocs(collection(db, "users"));
+
+            usersSnapshot.forEach((userDocument) => {
+                const userData = userDocument.data();
+                if (!myFriends.includes(userData.uid)) return;
+
+                friendsContainer.innerHTML += `
+                    <div class="profile-card" onclick="viewOtherProfile('${userData.uid}')">
+                        <div class="avatar-circle crew-grid-avatar">${getInitial(userData.username)}</div>
+                        <h3 style="margin: 0 0 0.4rem;">${userData.username}</h3>
+                        <p class="text-soft" style="margin: 0;">${userData.department}</p>
+                    </div>
+                `;
+            });
+
+            if (friendsContainer.innerHTML.trim() === "") {
+                friendsContainer.innerHTML = "<p class='empty-text'>No contacts added yet. Browse the crew roster.</p>";
+            }
+        };
+
+        window.viewOtherProfile = async function (uid) {
+            viewingUserId = uid;
+            switchPage("other-profile");
+            const userSnap = await getDoc(doc(db, "users", uid));
+            if (!userSnap.exists()) return;
+
+            const userData = userSnap.data();
+            document.getElementById("other-username").innerText = userData.username;
+            document.getElementById("other-dept").innerText = userData.department;
+
+            const isOnline = userData.status === "online";
+            document.getElementById("other-status-dot").className = "status-dot " + (isOnline ? "status-online" : "status-offline");
+            document.getElementById("other-status-text").innerText = isOnline ? "Online" : "Offline";
+            document.getElementById("other-status-text").className = isOnline ? "text-online" : "text-soft";
+
+            const myFriends = Array.isArray(currentUserData?.friends) ? currentUserData.friends : [];
+            const friendButton = document.getElementById("friend-btn");
+
+            if (myFriends.includes(uid)) {
+                friendButton.innerText = "✓ Remove Contact";
+                friendButton.classList.add("friend-added");
+            } else {
+                friendButton.innerText = "+ Add to Contacts";
+                friendButton.classList.remove("friend-added");
+            }
+        };
+
+        window.toggleFriend = async function () {
+            if (!viewingUserId || !auth.currentUser || !currentUserData) return;
+            let myFriends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
+
+            if (myFriends.includes(viewingUserId)) myFriends = myFriends.filter((id) => id !== viewingUserId);
+            else myFriends.push(viewingUserId);
+
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { friends: myFriends });
+            currentUserData.friends = myFriends;
+
+            const friendButton = document.getElementById("friend-btn");
+            if (myFriends.includes(viewingUserId)) {
+                friendButton.innerText = "✓ Remove Contact";
+                friendButton.classList.add("friend-added");
+            } else {
+                friendButton.innerText = "+ Add to Contacts";
+                friendButton.classList.remove("friend-added");
+            }
+        };
+
+        window.openChat = async function () {
+            if (!viewingUserId || !auth.currentUser) return;
+            switchPage("chat-page");
+
+            const myUid = auth.currentUser.uid;
+            const otherUid = viewingUserId;
+            const chatId = getChatId(myUid, otherUid);
+            document.getElementById("chat-title").innerText = "Secure Comm: " + document.getElementById("other-username").innerText;
+
+            const chatHistory = document.getElementById("chat-history");
+            chatHistory.innerHTML = "<p class='empty-text'>Securing connection...</p>";
+            stopChatListener();
+
+            const messageQuery = query(collection(db, "messages"), where("chatId", "==", chatId));
+
+            currentChatUnsubscribe = onSnapshot(messageQuery, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((docItem) => messages.push(docItem.data()));
+                messages.sort((a, b) => (a.timestamp?.toMillis ? a.timestamp.toMillis() : 0) - (b.timestamp?.toMillis ? b.timestamp.toMillis() : 0));
+
+                chatHistory.innerHTML = "";
+                if (messages.length === 0) {
+                    chatHistory.innerHTML = "<p class='empty-text'>No messages yet. Send a transmission.</p>";
+                    return;
                 }
+
+                messages.forEach((message) => {
+                    const bubbleClass = message.senderId === myUid ? "chat-sent" : "chat-received";
+                    chatHistory.innerHTML += `<div class="chat-bubble ${bubbleClass}">${message.text}</div>`;
+                });
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            });
+        };
+
+        window.sendChatMessage = async function () {
+            const chatInput = document.getElementById("chat-input");
+            const text = chatInput.value.trim();
+            if (!text || !auth.currentUser || !viewingUserId) return;
+
+            const myUid = auth.currentUser.uid;
+            const otherUid = viewingUserId;
+            chatInput.value = "";
+
+            await addDoc(collection(db, "messages"), {
+                chatId: getChatId(myUid, otherUid),
+                senderId: myUid,
+                text,
+                participants: [myUid, otherUid],
+                timestamp: serverTimestamp()
+            });
+        };
+
+        document.getElementById("chat-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendChatMessage();
             }
-        }
+        });
     </script>
 </body>
 </html>
