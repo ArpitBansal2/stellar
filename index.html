@@ -8,332 +8,180 @@
     <style>
         /* =========================================================
            1. THEME COLORS & VARIABLES
-           Change these to easily recolor the whole website
         ========================================================= */
         :root {
-            --background-dark: #030407;
             --glowing-blue: #00f3ff;
             --glowing-purple: #9d00ff;
-            --panel-background: rgba(11, 15, 30, 0.6);
-            --text-primary: #e0f2fe;
+            --panel-background: rgba(11, 15, 30, 0.65);
+            --text-primary: #e2e8f0;
             --text-secondary: #94a3b8;
             --error-red: #ff4a4a;
             --success-green: #4ade80;
         }
 
         /* =========================================================
-           2. GENERAL PAGE SETUP
-           The background, font, and basic spacing
+           2. GENERAL PAGE & BACKGROUND SETUP
         ========================================================= */
         body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: radial-gradient(circle at center, #0b1021 0%, var(--background-dark) 100%); 
-            font-family: 'Courier New', Courier, monospace; 
-            color: var(--text-primary); 
-            overflow-x: hidden; 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            color: var(--text-primary); overflow-x: hidden; 
+            
+            background: linear-gradient(45deg, #020308, #0b1021, #060514, #0b1021);
+            background-size: 300% 300%;
+            animation: subtleGradient 15s ease infinite;
         }
 
-        .container { 
-            max-width: 1200px; 
-            margin: 2rem auto; 
-            padding: 0 1rem; 
+        @keyframes subtleGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* Utility Classes (Replacing inline styles) */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
         .text-muted { color: var(--text-secondary); }
         .text-success { color: var(--success-green); }
         .text-glow-blue { color: var(--glowing-blue); }
 
+        /* Status Dots */
+        .status-dot {
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%; margin-right: 5px;
+        }
+        .status-online { background-color: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
+        .status-offline { background-color: var(--text-secondary); }
+
         /* =========================================================
-           3. BACKGROUND STARS ANIMATION
+           3. BACKGROUND STARS
         ========================================================= */
         #stars-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            z-index: -1; 
-            pointer-events: none; /* Lets you click through the stars */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: -1; pointer-events: none; 
         }
-        
         .star { 
-            position: absolute; 
-            background-color: white; 
-            border-radius: 50%; 
-            box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.4); 
-            animation: twinkle 2s infinite ease-in-out; 
+            position: absolute; background-color: white; border-radius: 50%; 
+            box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.3); 
+            animation: twinkle 3s infinite ease-in-out; 
         }
-        
-        @keyframes twinkle { 
-            0%, 100% { opacity: 0.9; transform: scale(1); } 
-            50% { opacity: 0.2; transform: scale(0.8); } 
-        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.2; } }
 
         /* =========================================================
            4. NAVIGATION BAR
         ========================================================= */
         nav { 
-            background-color: rgba(7, 9, 19, 0.85); 
-            border-bottom: 2px solid var(--glowing-blue); 
-            padding: 1rem 2rem; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            backdrop-filter: blur(10px); 
-            border-radius: 0 0 20px 20px; 
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); 
+            background-color: rgba(7, 9, 19, 0.85); border-bottom: 2px solid var(--glowing-blue); 
+            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); border-radius: 0 0 20px 20px; 
         }
-        
         .logo { 
-            font-size: 1.8rem; 
-            font-weight: bold; 
-            color: var(--glowing-blue); 
-            text-transform: uppercase; 
-            text-shadow: 0 0 10px var(--glowing-blue); 
+            font-size: 1.5rem; font-weight: bold; color: var(--glowing-blue); 
+            text-transform: uppercase; text-shadow: 0 0 10px var(--glowing-blue); 
         }
+        .logo span { color: var(--glowing-purple); }
         
-        .logo span { 
-            color: var(--glowing-purple); 
-            text-shadow: 0 0 10px var(--glowing-purple); 
-        }
-        
-        .nav-links { display: flex; gap: 2rem; }
-        
+        .nav-links { display: flex; gap: 1.5rem; }
         .nav-links a { 
-            color: var(--text-primary); 
-            text-decoration: none; 
-            text-transform: uppercase; 
-            padding: 0.6rem 1.2rem; 
-            border: 1px solid transparent; 
-            border-radius: 20px; 
-            transition: 0.3s; 
-            cursor: pointer; 
+            color: var(--text-primary); text-decoration: none; font-size: 0.9rem;
+            text-transform: uppercase; padding: 0.5rem 1rem; border-radius: 20px; 
+            transition: 0.3s; cursor: pointer; border: 1px solid transparent;
         }
-        
-        .nav-links a:hover, 
-        .nav-links a.active-link { 
-            color: var(--glowing-blue); 
-            border-color: var(--glowing-blue); 
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset; 
-            text-shadow: 0 0 8px var(--glowing-blue); 
+        .nav-links a:hover, .nav-links a.active-link { 
+            color: var(--glowing-blue); border-color: var(--glowing-blue); 
+            background-color: rgba(0, 243, 255, 0.05);
         }
-
-        /* Special style for the logout button */
-        .logout-btn {
-            border-color: var(--error-red) !important;
-            color: var(--error-red) !important;
-        }
+        .logout-btn { color: var(--error-red) !important; }
+        .logout-btn:hover { border-color: var(--error-red) !important; background-color: rgba(255, 74, 74, 0.1) !important;}
 
         /* =========================================================
-           5. PAGE SECTIONS & PANELS
-           Controls how pages hide/show and look like glass panels
+           5. PANELS & SECTIONS
         ========================================================= */
-        .page-section { 
-            display: none; 
-            animation: fadeIn 0.5s ease-out; 
-        }
-        
+        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
         .page-section.active-page { display: block; }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
         .content-panel { 
-            background-color: var(--panel-background); 
-            border: 1px solid rgba(0, 243, 255, 0.4); 
-            border-radius: 24px; 
-            padding: 2.5rem; 
-            margin-bottom: 2rem; 
-            backdrop-filter: blur(12px); 
-            position: relative; 
+            background-color: var(--panel-background); border: 1px solid rgba(0, 243, 255, 0.3); 
+            border-radius: 20px; padding: 2rem; margin-bottom: 2rem; 
+            backdrop-filter: blur(12px); position: relative; 
         }
-
-        /* The glowing line on the left side of panels */
         .content-panel::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 6px; 
-            height: 100%; 
-            background-color: var(--glowing-blue); 
-            box-shadow: 0 0 15px var(--glowing-blue); 
+            content: ''; position: absolute; top: 0; left: 0; 
+            width: 4px; height: 100%; background-color: var(--glowing-blue); 
         }
-
-        /* Centered panel specifically for the login/register screen */
-        .auth-panel {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        h1, h2 { 
-            color: var(--glowing-blue); 
-            text-transform: uppercase; 
-            border-bottom: 1px solid rgba(0, 243, 255, 0.2); 
-            padding-bottom: 0.5rem; 
-            margin-top: 0; 
+        .auth-panel { max-width: 450px; margin: 0 auto; }
+        h2 { 
+            color: var(--glowing-blue); text-transform: uppercase; border-bottom: 1px solid rgba(0, 243, 255, 0.2); 
+            padding-bottom: 0.5rem; margin-top: 0; font-size: 1.2rem;
         }
 
         /* =========================================================
-           6. FORMS & BUTTONS (Inputs, Textareas, Selects)
+           6. INPUTS & BUTTONS
         ========================================================= */
         .input-group { margin-bottom: 1.5rem; }
-        
-        label { 
-            display: block; 
-            margin-bottom: 0.5rem; 
-            color: var(--glowing-purple); 
-            font-size: 0.95rem; 
-        }
+        label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
         
         input, textarea, select { 
-            width: 100%; 
-            padding: 1rem; 
-            background-color: rgba(0,0,0,0.6); 
-            border: 1px solid var(--text-secondary); 
-            color: var(--text-primary); 
-            border-radius: 20px; 
-            font-family: inherit; 
-            box-sizing: border-box; 
+            width: 100%; padding: 0.8rem; background-color: rgba(0,0,0,0.5); 
+            border: 1px solid var(--text-secondary); color: var(--text-primary); 
+            border-radius: 12px; font-family: inherit; box-sizing: border-box; 
         }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--glowing-blue); }
         
-        input:focus, textarea:focus, select:focus { 
-            outline: none; 
-            border-color: var(--glowing-blue); 
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2) inset; 
+        button.main-btn { 
+            background-color: transparent; color: var(--glowing-blue); border: 2px solid var(--glowing-blue); 
+            padding: 0.8rem 2rem; cursor: pointer; text-transform: uppercase; font-weight: bold; 
+            border-radius: 25px; transition: 0.3s; 
         }
-        
-        button { 
-            background-color: transparent; 
-            color: var(--glowing-blue); 
-            border: 2px solid var(--glowing-blue); 
-            padding: 0.8rem 2.5rem; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-weight: bold; 
-            border-radius: 30px; 
-            transition: 0.3s; 
-        }
-        
-        button:hover { 
-            background-color: rgba(0, 243, 255, 0.2); 
-            box-shadow: 0 0 20px var(--glowing-blue); 
-            color: white; 
-        }
-
-        .btn-full-width {
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .auth-toggle-link {
-            text-align: center;
-            margin-top: 15px;
-            cursor: pointer;
-            color: var(--glowing-purple);
-        }
-
-        .error-msg { 
-            color: var(--error-red); 
-            text-shadow: 0 0 5px var(--error-red); 
-            margin-top: 10px; 
-            display: none; 
-        }
+        button.main-btn:hover { background-color: rgba(0, 243, 255, 0.1); box-shadow: 0 0 15px var(--glowing-blue); }
+        .btn-full-width { width: 100%; margin-top: 1rem; }
+        .auth-toggle-link { text-align: center; margin-top: 15px; cursor: pointer; color: var(--glowing-purple); font-size: 0.9rem;}
 
         /* =========================================================
-           7. POSTS & FEEDS
+           7. POSTS FEED 
         ========================================================= */
-        .feed-post { 
-            border-bottom: 1px dashed rgba(255,255,255,0.1); 
-            padding: 1.5rem 0; 
+        .feed-post { border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 1.5rem 0; }
+        .post-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0.5rem; }
+        .post-actions { display: flex; gap: 1.5rem; margin-top: 1rem; }
+        .action-btn {
+            background: none; border: none; padding: 0; font-size: 0.9rem;
+            color: var(--text-secondary); cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 5px; font-family: inherit;
         }
-        
-        .post-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            margin-bottom: 1rem; 
-        }
-        
+        .action-btn:hover { color: var(--glowing-blue); }
+        .delete-btn:hover { color: var(--error-red); }
+        .liked { color: var(--glowing-purple) !important; }
+
         /* =========================================================
-           8. AVATARS & CREW DIRECTORY
+           8. CREW DIRECTORY & AVATARS
         ========================================================= */
         .avatar-circle { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
+            width: 45px; height: 45px; border-radius: 50%; 
             background: linear-gradient(45deg, var(--glowing-blue), var(--glowing-purple)); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; 
         }
-        
-        .directory-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 2rem; 
-        }
-        
+        .directory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
         .profile-card { 
-            background-color: var(--panel-background); 
-            border: 1px solid rgba(157, 0, 255, 0.4); 
-            padding: 2rem 1.5rem; 
-            text-align: center; 
-            border-radius: 24px; 
-            cursor: pointer; 
-            transition: 0.3s; 
+            background-color: rgba(0,0,0,0.3); border: 1px solid rgba(157, 0, 255, 0.3); 
+            padding: 1.5rem; text-align: center; border-radius: 16px; cursor: pointer; transition: 0.3s; 
         }
-        
         .profile-card:hover { 
-            transform: translateY(-8px); 
-            border-color: var(--glowing-purple); 
-            box-shadow: 0 10px 25px rgba(157, 0, 255, 0.3); 
+            transform: translateY(-5px); border-color: var(--glowing-purple); 
+            box-shadow: 0 5px 15px rgba(157, 0, 255, 0.2); 
         }
-        
-        /* Layout for the profile pages */
-        .profile-header-layout {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
         .large-avatar { 
-            width: 120px; 
-            height: 120px; 
-            border-radius: 50%; 
-            background-color: #222; 
-            border: 3px solid var(--glowing-purple); 
-            font-size: 3rem; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
+            width: 90px; height: 90px; border-radius: 50%; background-color: #111; 
+            border: 2px solid var(--glowing-purple); font-size: 2.5rem; 
+            display: flex; align-items: center; justify-content: center;
         }
-
-        /* Smaller version used inside the crew grid */
-        .crew-grid-avatar {
-            width: 70px;
-            height: 70px;
-            font-size: 2rem;
-            margin: 0 auto 1rem;
-        }
+        .crew-grid-avatar { width: 60px; height: 60px; font-size: 1.5rem; margin: 0 auto 1rem; }
+        .profile-header-layout { display: flex; gap: 2rem; align-items: center; margin-bottom: 1.5rem; }
     </style>
 </head>
 <body>
     
     <div id="stars-container"></div>
 
-    <!-- MAIN NAVIGATION -->
     <nav>
         <div class="logo">Stellar<span>Net</span></div>
         <div class="nav-links" id="main-nav" style="display: none;">
@@ -346,28 +194,23 @@
 
     <div class="container">
         
-        <!-- PAGE 1: ONBOARDING (Login / Register) -->
+        <!-- PAGE 1: AUTHENTICATION -->
         <div id="auth" class="page-section active-page">
             <div class="content-panel auth-panel">
-                <h2 id="auth-title">Station Onboarding (Register)</h2>
-                
+                <h2 id="auth-title">Station Onboarding</h2>
                 <div class="input-group">
                     <label>Email Address</label>
                     <input type="email" id="auth-email" placeholder="cadet@space.fleet">
                 </div>
-
                 <div class="input-group">
-                    <label>Space Fleet Code (Password)</label>
+                    <label>Password</label>
                     <input type="password" id="auth-password" placeholder="••••••••">
                 </div>
-
-                <!-- These fields hide when switching to Login mode -->
                 <div id="register-fields">
                     <div class="input-group">
                         <label>Call Sign (Username)</label>
                         <input type="text" id="auth-username" placeholder="e.g. StarLord99">
                     </div>
-                    
                     <div class="input-group">
                         <label>Assigned Department</label>
                         <select id="auth-department">
@@ -378,27 +221,23 @@
                         </select>
                     </div>
                 </div>
-                
-                <p class="error-msg" id="auth-error"></p>
-                
-                <button class="btn-full-width" id="auth-btn" onclick="handleAuth()">Initialize Profile</button>
+                <p id="auth-error" style="color: var(--error-red); display: none;"></p>
+                <button class="main-btn btn-full-width" id="auth-btn" onclick="handleAuth()">Initialize Profile</button>
                 <p class="auth-toggle-link" id="auth-toggle" onclick="toggleAuthMode()">Already stationed here? Login instead.</p>
             </div>
         </div>
 
-        <!-- PAGE 2: HOME PAGE (The Global Feed) -->
+        <!-- PAGE 2: HOME FEED -->
         <div id="home" class="page-section">
             <div class="content-panel">
                 <h2>Broadcast to Station</h2>
                 <div class="input-group">
                     <textarea id="post-content" rows="3" placeholder="Enter transmission logs here..."></textarea>
                 </div>
-                <button onclick="submitPost()">Transmit Log</button>
+                <button class="main-btn" onclick="submitPost()">Transmit Log</button>
             </div>
-
             <div class="content-panel">
                 <h2>Station Logs (Global Feed)</h2>
-                <!-- Posts will be injected here by Javascript -->
                 <div id="global-feed-container">Loading transmissions...</div>
             </div>
         </div>
@@ -408,7 +247,7 @@
             <div class="content-panel">
                 <h2>Station Crew Directory</h2>
                 <div class="directory-grid" id="crew-grid-container">
-                    <!-- Crew loaded here by Javascript -->
+                    <!-- Javascript populates crew here -->
                 </div>
             </div>
         </div>
@@ -416,45 +255,43 @@
         <!-- PAGE 4: MY PROFILE -->
         <div id="profile" class="page-section">
             <div class="content-panel">
-                <h2>My Quarters (Profile)</h2>
-                
+                <h2>My Quarters</h2>
                 <div class="profile-header-layout">
                     <div class="large-avatar">👨‍🚀</div>
                     <div>
-                        <h1 id="my-username" style="border: none; margin: 0;">Loading...</h1>
-                        <p class="text-muted">Dept: <span id="my-dept">...</span></p>
-                        <p>Status: <span class="text-success">Online</span></p>
+                        <h1 id="my-username" style="margin: 0; font-size: 2rem;">Loading...</h1>
+                        <p class="text-muted" style="margin: 5px 0;">Dept: <span id="my-dept">...</span></p>
+                        <p style="margin: 5px 0;"><span class="status-dot status-online"></span> <span class="text-success">Online</span></p>
                     </div>
                 </div>
-                
             </div>
         </div>
 
-        <!-- PAGE 5: VIEW OTHER USER PROFILE -->
+        <!-- PAGE 5: VIEW OTHER USER PROFILE (RESTORED!) -->
         <div id="other-profile" class="page-section">
             <div class="content-panel">
-                <!-- Inline margin kept here specifically to distance it from the title -->
-                <button onclick="switchPage('crew')" style="margin-bottom: 1rem;">&larr; Back to Roster</button>
-                
+                <button class="main-btn" onclick="switchPage('crew')" style="padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1rem; border-color: var(--text-secondary); color: var(--text-primary);">&larr; Back to Roster</button>
                 <h2>Dossier</h2>
                 <div class="profile-header-layout">
                     <div class="large-avatar">👽</div>
                     <div>
                         <h3 id="other-username" class="text-glow-blue" style="margin: 0; font-size: 2rem;">Loading...</h3>
-                        <p class="text-muted">Dept: <span id="other-dept">...</span></p>
+                        <p class="text-muted" style="margin: 5px 0;">Dept: <span id="other-dept">...</span></p>
+                        <p style="margin: 5px 0;"><span id="other-status-dot" class="status-dot"></span> <span id="other-status-text">...</span></p>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- =========================================================
-         JAVASCRIPT / FIREBASE LOGIC
+         JAVASCRIPT & FIREBASE LOGIC
     ========================================================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
@@ -475,28 +312,27 @@
         // Background Stars Animation
         function generateStars() {
             const container = document.getElementById('stars-container');
-            for (let i = 0; i < 200; i++) {
+            for (let i = 0; i < 150; i++) {
                 const star = document.createElement('div');
                 star.classList.add('star');
-                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.width = `${Math.random() * 2 + 1}px`;
                 star.style.height = star.style.width;
                 star.style.left = `${Math.random() * 100}vw`;
                 star.style.top = `${Math.random() * 100}vh`;
-                star.style.animationDuration = `${Math.random() * 4 + 1}s`;
                 star.style.animationDelay = `${Math.random() * 3}s`;
                 container.appendChild(star);
             }
         }
         generateStars();
 
-        // Page Navigation
+        // Switch Pages
         window.switchPage = function(targetPageId) {
             document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active-page'));
             document.getElementById(targetPageId).classList.add('active-page');
             
             if(targetPageId === 'home') loadFeed(); 
             
-            if (targetPageId !== 'other-profile' && targetPageId !== 'auth') {
+            if (targetPageId !== 'auth' && targetPageId !== 'other-profile') {
                 document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active-link'));
                 if(targetPageId === 'home') document.querySelectorAll('.nav-item')[0].classList.add('active-link');
                 if(targetPageId === 'crew') document.querySelectorAll('.nav-item')[1].classList.add('active-link');
@@ -504,17 +340,17 @@
             }
         }
 
-        // Toggle Login/Register
+        // Auth Form Toggle
         window.toggleAuthMode = function() {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "Station Login" : "Station Onboarding (Register)";
+            document.getElementById('auth-title').innerText = isLoginMode ? "Station Login" : "Station Onboarding";
             document.getElementById('auth-btn').innerText = isLoginMode ? "Access Terminal" : "Initialize Profile";
             document.getElementById('auth-toggle').innerText = isLoginMode ? "New recruit? Register here." : "Already stationed here? Login instead.";
             document.getElementById('register-fields').style.display = isLoginMode ? "none" : "block";
             document.getElementById('auth-error').style.display = "none";
         }
 
-        // Handle Signup/Login
+        // Login / Register 
         window.handleAuth = async function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
@@ -526,44 +362,43 @@
                 } else {
                     const username = document.getElementById('auth-username').value;
                     const department = document.getElementById('auth-department').value;
-                    
                     if(!username) throw new Error("Call sign is required.");
 
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const user = userCredential.user;
-
-                    await setDoc(doc(db, "users", user.uid), {
-                        username: username,
-                        department: department,
-                        email: email,
-                        uid: user.uid
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        username: username, department: department, email: email, uid: userCredential.user.uid, status: "online" 
                     });
                 }
             } catch (error) {
-                errorBox.innerText = error.message;
-                errorBox.style.display = "block";
+                errorBox.innerText = error.message; errorBox.style.display = "block";
             }
         }
 
-        window.logoutUser = function() {
+        // Logout
+        window.logoutUser = async function() {
+            if(auth.currentUser) {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { status: "offline" });
+            }
             signOut(auth);
         }
 
-        // Listen for Authentication State
+        // Auth State Listener
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('main-nav').style.display = "flex";
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) currentUserData = userDoc.data();
+                if(userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    await updateDoc(doc(db, "users", user.uid), { status: "online" });
+                }
                 switchPage('home');
             } else {
                 document.getElementById('main-nav').style.display = "none";
-                currentUserData = null;
-                switchPage('auth');
+                currentUserData = null; switchPage('auth');
             }
         });
 
-        // Submit a new post
+        // Submit Post
         window.submitPost = async function() {
             const contentBox = document.getElementById('post-content');
             const content = contentBox.value;
@@ -571,76 +406,105 @@
 
             try {
                 await addDoc(collection(db, "posts"), {
-                    content: content,
-                    authorId: auth.currentUser.uid,
-                    authorName: currentUserData.username,
-                    authorDept: currentUserData.department,
-                    timestamp: serverTimestamp()
+                    content: content, authorId: auth.currentUser.uid, authorName: currentUserData.username,
+                    authorDept: currentUserData.department, likes: [], timestamp: serverTimestamp()
                 });
-                contentBox.value = ""; 
-                loadFeed(); 
-            } catch (e) {
-                alert("Comm-Link error: " + e.message);
-            }
+                contentBox.value = ""; loadFeed(); 
+            } catch (e) { alert("Error: " + e.message); }
         }
 
-        // Load the global feed
+        // Load Feed
         window.loadFeed = async function() {
             const feedContainer = document.getElementById('global-feed-container');
             feedContainer.innerHTML = "Fetching transmissions...";
             
-            const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(q);
+            const postQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(postQuery);
             
             feedContainer.innerHTML = ""; 
-            
             if(querySnapshot.empty) {
-                feedContainer.innerHTML = "<p class='text-muted'>No logs found in this sector.</p>";
-                return;
+                feedContainer.innerHTML = "<p class='text-muted'>No logs found in this sector.</p>"; return;
             }
 
-            querySnapshot.forEach((doc) => {
-                const post = doc.data();
+            querySnapshot.forEach((document) => {
+                const post = document.data();
+                const postId = document.id; 
                 const initial = post.authorName ? post.authorName.charAt(0).toUpperCase() : "?";
                 
+                const likesArray = post.likes || [];
+                const hasLiked = likesArray.includes(auth.currentUser.uid);
+                const likeClass = hasLiked ? "liked" : "";
+                
+                const isMyPost = post.authorId === auth.currentUser.uid;
+                const deleteBtnHtml = isMyPost ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>` : "";
+
                 feedContainer.innerHTML += `
                     <div class="feed-post">
                         <div class="post-header">
                             <div class="avatar-circle">${initial}</div>
                             <div>
                                 <strong>${post.authorName}</strong> 
-                                <span class="text-muted" style="font-size: 0.8rem;">[${post.authorDept}]</span>
+                                <span class="text-muted" style="font-size: 0.8rem; margin-left: 5px;">[${post.authorDept}]</span>
                             </div>
                         </div>
-                        <p>${post.content}</p>
+                        <p style="margin: 0.5rem 0;">${post.content}</p>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
+                            ${deleteBtnHtml}
+                        </div>
                     </div>
                 `;
             });
         }
 
-        // Load the crew directory
+        // Toggle Like
+        window.toggleLike = async function(postId) {
+            const postRef = doc(db, "posts", postId);
+            const postDoc = await getDoc(postRef);
+            if(postDoc.exists()) {
+                let currentLikes = postDoc.data().likes || [];
+                const myUid = auth.currentUser.uid;
+                if(currentLikes.includes(myUid)) currentLikes = currentLikes.filter(id => id !== myUid);
+                else currentLikes.push(myUid);
+                await updateDoc(postRef, { likes: currentLikes });
+                loadFeed();
+            }
+        }
+
+        // Delete Post
+        window.deletePost = async function(postId) {
+            if(confirm("Are you sure you want to delete this transmission?")) {
+                await deleteDoc(doc(db, "posts", postId)); loadFeed();
+            }
+        }
+
+        // Load Crew Roster (RESTORED ONCLICK EVENT!)
         window.loadCrewRoster = async function() {
             const crewContainer = document.getElementById('crew-grid-container');
             crewContainer.innerHTML = "Scanning personnel records...";
-            
             const querySnapshot = await getDocs(collection(db, "users"));
             crewContainer.innerHTML = "";
             
             querySnapshot.forEach((doc) => {
                 const user = doc.data();
                 const initial = user.username.charAt(0).toUpperCase();
+                const isOnline = user.status === "online";
+                const dotClass = isOnline ? "status-online" : "status-offline";
+                const statusText = isOnline ? "Online" : "Offline";
                 
+                // Added onclick back here
                 crewContainer.innerHTML += `
                     <div class="profile-card" onclick="viewOtherProfile('${user.uid}')">
                         <div class="avatar-circle crew-grid-avatar">${initial}</div>
-                        <h3>${user.username}</h3>
-                        <p class="text-muted">${user.department}</p>
+                        <h3 style="margin: 0.5rem 0;">${user.username}</h3>
+                        <p class="text-muted" style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">${user.department}</p>
+                        <p style="margin: 0; font-size: 0.85rem;"><span class="status-dot ${dotClass}"></span> ${statusText}</p>
                     </div>
                 `;
             });
         }
 
-        // Load your own profile
+        // Load My Profile
         window.loadMyProfile = function() {
             if(currentUserData) {
                 document.getElementById('my-username').innerText = currentUserData.username;
@@ -648,7 +512,7 @@
             }
         }
 
-        // Load someone else's profile
+        // View Other Profile (RESTORED FUNCTION!)
         window.viewOtherProfile = async function(uid) {
             switchPage('other-profile');
             document.getElementById('other-username').innerText = "Loading...";
@@ -658,6 +522,17 @@
                 const user = userDoc.data();
                 document.getElementById('other-username').innerText = user.username;
                 document.getElementById('other-dept').innerText = user.department;
+                
+                const isOnline = user.status === "online";
+                document.getElementById('other-status-dot').className = "status-dot " + (isOnline ? "status-online" : "status-offline");
+                document.getElementById('other-status-text').innerText = isOnline ? "Online" : "Offline";
+                if(isOnline) {
+                    document.getElementById('other-status-text').classList.add("text-success");
+                    document.getElementById('other-status-text').classList.remove("text-muted");
+                } else {
+                    document.getElementById('other-status-text').classList.add("text-muted");
+                    document.getElementById('other-status-text').classList.remove("text-success");
+                }
             }
         }
     </script>
