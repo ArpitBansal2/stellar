@@ -489,8 +489,9 @@
         .error-text { color: var(--red); margin: 0.8rem 0 0; display: none; }
 
         .feed-post {
-            padding: 1.4rem 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+            padding: 1.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 0.8rem;
         }
 
         .feed-post:last-child { border-bottom: none; }
@@ -663,6 +664,19 @@
         }
 
         .chat-input-row input { flex: 1; }
+
+        .reply-box {
+            margin-top: 1.2rem;
+            padding-top: 1.1rem;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .reply-input-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.2rem;
+            margin-bottom: 0.9rem;
+        }
 
         @media (max-width: 900px) {
             .landing-page { grid-template-columns: 1fr; }
@@ -1233,7 +1247,6 @@
                                 </div>
 
                                 <div class="reply-box hidden" id="reply-box-${postId}">
-                                    <div class="text-soft">Reply to this transmission</div>
                                     <div class="reply-input-row">
                                         <input type="text" id="reply-input-${postId}" placeholder="Write a reply..." />
                                         <button class="reply-btn" onclick="addReply('${postId}')">Post Reply</button>
