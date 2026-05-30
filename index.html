@@ -192,17 +192,6 @@
             z-index: 3;
         }
 
-        .landing-badge {
-            display: inline-block;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            border: 1px solid rgba(0, 229, 255, 0.35);
-            background: rgba(0, 229, 255, 0.06);
-            color: var(--glow-blue);
-            font-size: 0.9rem;
-            margin-bottom: 1.2rem;
-        }
-
         .landing-title {
             margin: 0 0 1rem;
             font-size: clamp(2.2rem, 5vw, 4.2rem);
@@ -571,6 +560,24 @@
         .profile-name { margin: 0; font-size: 2rem; }
         .profile-meta { margin: 0.35rem 0; }
 
+        .bio-box {
+            margin-top: 0.8rem;
+            padding: 1rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .profile-editor {
+            margin-top: 2rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.03);
+        }
+
         .status-dot {
             display: inline-block;
             width: 10px;
@@ -677,8 +684,6 @@
         <section id="landing" class="page-section active-page">
             <div class="landing-page">
                 <div class="landing-content">
-                    <div class="landing-badge">Virtual Space Station Social Platform</div>
-
                     <h1 class="landing-title">
                         Explore the station.
                         <br />
@@ -687,7 +692,7 @@
 
                     <p class="landing-subtitle">
                         StellarNet is a space-themed social platform where cadets connect through crew profiles,
-                        live posts, contacts, and secure direct messages — all inside a futuristic station interface.
+                        live posts, contacts, secure direct messages, media-rich broadcasts, and threaded replies.
                     </p>
 
                     <div class="landing-buttons" id="landing-auth-buttons">
@@ -702,11 +707,11 @@
                     <div class="landing-points">
                         <div class="landing-point">
                             <strong>Profiles</strong>
-                            Personal quarters, dossier view, and active crew roster.
+                            Edit your call sign, add a bio, and manage your personal quarters.
                         </div>
                         <div class="landing-point">
-                            <strong>Feed</strong>
-                            Post updates, like transmissions, and delete your own logs.
+                            <strong>Broadcasts</strong>
+                            Share text, attach images or videos, like posts, and reply to threads.
                         </div>
                         <div class="landing-point">
                             <strong>Messages</strong>
@@ -723,8 +728,7 @@
                     <div class="visual-card">
                         <h3>Home</h3>
                         <p>
-                            Crew status, mission chatter, and private comms — all connected to Firebase while
-                            still staying simple enough to edit easily.
+                            Crew status, mission chatter, media posts, and private comms — all in one clean station interface.
                         </p>
                     </div>
 
@@ -784,10 +788,34 @@
         <section id="home" class="page-section">
             <div class="content-panel">
                 <h2 class="section-title">Broadcast to Station</h2>
-                <div class="input-group">
-                    <textarea id="post-content" placeholder="Enter transmission logs here..."></textarea>
+                <div class="composer-card">
+                    <div class="composer-top">
+                        <div class="avatar-circle" id="composer-avatar">?</div>
+                        <div class="composer-main">
+                            <div class="input-group" style="margin-bottom: 0;">
+                                <textarea id="post-content" placeholder="Share a mission log, update, image, or video..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="composer-actions">
+                        <div class="attach-row">
+                            <label class="file-label">
+                                <span>🖼 Image</span>
+                                <input type="file" id="post-image" accept="image/*" />
+                            </label>
+
+                            <label class="file-label">
+                                <span>🎥 Video</span>
+                                <input type="file" id="post-video" accept="video/*" />
+                            </label>
+
+                            <button class="small-btn" onclick="clearAttachments()">Clear Attachments</button>
+                        </div>
+
+                        <button class="main-btn" onclick="submitPost()">Transmit Log</button>
+                    </div>
                 </div>
-                <button class="main-btn" onclick="submitPost()">Transmit Log</button>
             </div>
 
             <div class="content-panel">
@@ -821,6 +849,23 @@
                     </div>
                 </div>
 
+                <div class="bio-box" id="my-bio-display">No bio added yet.</div>
+
+                <div class="profile-editor">
+                    <h3 style="margin-top: 0; color: var(--glow-blue);">Edit Profile</h3>
+                    <div class="input-group">
+                        <label>Edit Username</label>
+                        <input type="text" id="edit-username" placeholder="Update your call sign" />
+                    </div>
+                    <div class="input-group">
+                        <label>Edit Bio</label>
+                        <textarea id="edit-bio" placeholder="Tell the station a little about yourself..."></textarea>
+                    </div>
+                    <div class="btn-row">
+                        <button class="main-btn" onclick="saveProfileEdits()">Save Changes</button>
+                    </div>
+                </div>
+
                 <h2 class="section-title" style="margin-top: 2rem;">My Contacts</h2>
                 <div class="directory-grid" id="my-friends-container">
                     <p class="empty-text">Loading contacts...</p>
@@ -849,6 +894,8 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="bio-box" id="other-bio-display">No bio available.</div>
 
                 <div class="btn-row" style="margin-top: 1.5rem;">
                     <button class="main-btn" id="friend-btn" onclick="toggleFriend()">
@@ -906,25 +953,34 @@
             serverTimestamp,
             onSnapshot
         } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import {
+            getStorage,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
-            authDomain: "stellar-net-fcee6.firebaseapp.com",
-            projectId: "stellar-net-fcee6",
-            storageBucket: "stellar-net-fcee6.firebasestorage.app",
-            messagingSenderId: "101106207112",
-            appId: "1:101106207112:web:eee63537767e71c344d23d"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         let isLoginMode = false;
         let currentUserData = null;
         let viewingUserId = null;
         let currentChatUnsubscribe = null;
         let initialPageLoad = true;
+        let selectedImageFile = null;
+        let selectedVideoFile = null;
 
         function generateStars() {
             const container = document.getElementById("stars-container");
@@ -967,7 +1023,81 @@
             document.getElementById("auth-error").innerText = "";
         }
 
+        function formatTimestamp(timestamp) {
+            if (!timestamp || !timestamp.toDate) return "Just now";
+            return timestamp.toDate().toLocaleString([], {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function uploadAttachment(file, folderName) {
+            const safeName = Date.now() + "-" + file.name.replace(/\s+/g, "-");
+            const fileRef = ref(storage, folderName + "/" + auth.currentUser.uid + "/" + safeName);
+            await uploadBytes(fileRef, file);
+            return await getDownloadURL(fileRef);
+        }
+
+        function updateComposerAvatar() {
+            const composerAvatar = document.getElementById("composer-avatar");
+            composerAvatar.innerText = getInitial(currentUserData?.username);
+        }
+
+        function renderAttachmentPreview() {
+            const preview = document.getElementById("attachment-preview");
+            preview.innerHTML = "";
+
+            if (!selectedImageFile && !selectedVideoFile) return;
+
+            if (selectedImageFile) {
+                const card = document.createElement("div");
+                card.className = "preview-card";
+                const imageUrl = URL.createObjectURL(selectedImageFile);
+                card.innerHTML = `<img src="${imageUrl}" alt="Image preview"><p class="text-soft" style="margin: 0.6rem 0 0;">${selectedImageFile.name}</p>`;
+                preview.appendChild(card);
+            }
+
+            if (selectedVideoFile) {
+                const card = document.createElement("div");
+                card.className = "preview-card";
+                const videoUrl = URL.createObjectURL(selectedVideoFile);
+                card.innerHTML = `<video src="${videoUrl}" controls></video><p class="text-soft" style="margin: 0.6rem 0 0;">${selectedVideoFile.name}</p>`;
+                preview.appendChild(card);
+            }
+        }
+
+        window.clearAttachments = function () {
+            selectedImageFile = null;
+            selectedVideoFile = null;
+            document.getElementById("post-image").value = "";
+            document.getElementById("post-video").value = "";
+            renderAttachmentPreview();
+        };
+
         generateStars();
+
+        document.getElementById("post-image").addEventListener("change", (event) => {
+            selectedImageFile = event.target.files[0] || null;
+            renderAttachmentPreview();
+        });
+
+        document.getElementById("post-video").addEventListener("change", (event) => {
+            selectedVideoFile = event.target.files[0] || null;
+            renderAttachmentPreview();
+        });
 
         window.switchPage = function (targetPageId) {
             document.querySelectorAll(".page-section").forEach((page) => page.classList.remove("active-page"));
@@ -1013,7 +1143,8 @@
                         email,
                         uid: userCredential.user.uid,
                         status: "online",
-                        friends: []
+                        friends: [],
+                        bio: ""
                     };
                     await setDoc(doc(db, "users", userCredential.user.uid), newUserData);
                     currentUserData = newUserData;
@@ -1064,7 +1195,9 @@
             if (userSnap.exists()) {
                 currentUserData = userSnap.data();
                 if (!Array.isArray(currentUserData.friends)) currentUserData.friends = [];
+                if (!currentUserData.bio) currentUserData.bio = "";
                 await updateDoc(userRef, { status: "online" });
+                updateComposerAvatar();
             }
 
             if (initialPageLoad) {
@@ -1076,18 +1209,35 @@
         window.submitPost = async function () {
             const postBox = document.getElementById("post-content");
             const content = postBox.value.trim();
-            if (!content || !currentUserData || !auth.currentUser) return;
+            if (!content && !selectedImageFile && !selectedVideoFile) return;
+            if (!currentUserData || !auth.currentUser) return;
 
             try {
+                let imageUrl = "";
+                let videoUrl = "";
+
+                if (selectedImageFile) {
+                    imageUrl = await uploadAttachment(selectedImageFile, "post-images");
+                }
+
+                if (selectedVideoFile) {
+                    videoUrl = await uploadAttachment(selectedVideoFile, "post-videos");
+                }
+
                 await addDoc(collection(db, "posts"), {
                     content,
                     authorId: auth.currentUser.uid,
                     authorName: currentUserData.username,
                     authorDept: currentUserData.department,
                     likes: [],
+                    replies: [],
+                    imageUrl,
+                    videoUrl,
                     timestamp: serverTimestamp()
                 });
+
                 postBox.value = "";
+                clearAttachments();
                 loadFeed();
             } catch (error) {
                 alert("Could not send transmission: " + error.message);
@@ -1113,26 +1263,74 @@
                     const postData = postDocument.data();
                     const postId = postDocument.id;
                     const likesArray = Array.isArray(postData.likes) ? postData.likes : [];
+                    const repliesArray = Array.isArray(postData.replies) ? postData.replies : [];
                     const userHasLiked = auth.currentUser && likesArray.includes(auth.currentUser.uid);
                     const likeClass = userHasLiked ? "liked" : "";
                     const isMyPost = auth.currentUser && postData.authorId === auth.currentUser.uid;
+
                     const deleteButtonHtml = isMyPost
                         ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>`
                         : "";
 
+                    let mediaHtml = "";
+                    if (postData.imageUrl || postData.videoUrl) {
+                        mediaHtml += `<div class="post-media">`;
+                        if (postData.imageUrl) {
+                            mediaHtml += `<img src="${postData.imageUrl}" alt="Post image">`;
+                        }
+                        if (postData.videoUrl) {
+                            mediaHtml += `<video src="${postData.videoUrl}" controls></video>`;
+                        }
+                        mediaHtml += `</div>`;
+                    }
+
+                    let repliesHtml = "";
+                    if (repliesArray.length > 0) {
+                        repliesHtml += `<div class="reply-list">`;
+                        repliesArray.forEach((reply) => {
+                            repliesHtml += `
+                                <div class="reply-item">
+                                    <div class="reply-meta"><strong>${escapeHtml(reply.authorName || "Crewmate")}</strong> · ${escapeHtml(reply.timeLabel || "Just now")}</div>
+                                    <div>${escapeHtml(reply.text || "")}</div>
+                                </div>
+                            `;
+                        });
+                        repliesHtml += `</div>`;
+                    }
+
                     feedContainer.innerHTML += `
                         <div class="feed-post">
-                            <div class="post-header">
-                                <div class="avatar-circle">${getInitial(postData.authorName)}</div>
-                                <div>
-                                    <strong>${postData.authorName}</strong>
-                                    <div class="text-soft" style="font-size: 0.85rem;">[${postData.authorDept}]</div>
+                            <div class="post-shell">
+                                <div class="post-header">
+                                    <div class="avatar-circle">${getInitial(postData.authorName)}</div>
+                                    <div>
+                                        <strong>${escapeHtml(postData.authorName || "Unknown")}</strong>
+                                        <div class="text-soft" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
+                                        <div class="post-badges">
+                                            <span class="post-chip">Mission Broadcast</span>
+                                            ${postData.imageUrl ? '<span class="post-chip">Image Attached</span>' : ''}
+                                            ${postData.videoUrl ? '<span class="post-chip">Video Attached</span>' : ''}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <p class="post-content">${postData.content}</p>
-                            <div class="post-actions">
-                                <button class="action-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
-                                ${deleteButtonHtml}
+
+                                <p class="post-content">${escapeHtml(postData.content || "")}</p>
+                                ${mediaHtml}
+
+                                <div class="post-actions">
+                                    <button class="action-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
+                                    <button class="action-btn" onclick="toggleReplyBox('${postId}')">↩ Reply (${repliesArray.length})</button>
+                                    ${deleteButtonHtml}
+                                </div>
+
+                                <div class="reply-box hidden" id="reply-box-${postId}">
+                                    <div class="text-soft">Reply to this transmission</div>
+                                    <div class="reply-input-row">
+                                        <input type="text" id="reply-input-${postId}" placeholder="Write a reply..." />
+                                        <button class="small-btn" onclick="addReply('${postId}')">Post Reply</button>
+                                    </div>
+                                    ${repliesHtml}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1141,6 +1339,40 @@
                 console.log(error.message);
                 feedContainer.innerHTML = "<p class='empty-text'>Could not load transmissions.</p>";
             }
+        };
+
+        window.toggleReplyBox = function (postId) {
+            const replyBox = document.getElementById(`reply-box-${postId}`);
+            if (!replyBox) return;
+            replyBox.classList.toggle("hidden");
+        };
+
+        window.addReply = async function (postId) {
+            if (!auth.currentUser || !currentUserData) return;
+            const input = document.getElementById(`reply-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const postRef = doc(db, "posts", postId);
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) return;
+
+            const currentReplies = Array.isArray(postSnap.data().replies) ? postSnap.data().replies : [];
+            currentReplies.push({
+                authorId: auth.currentUser.uid,
+                authorName: currentUserData.username,
+                text,
+                timeLabel: new Date().toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit"
+                })
+            });
+
+            await updateDoc(postRef, { replies: currentReplies });
+            input.value = "";
+            loadFeed();
         };
 
         window.toggleLike = async function (postId) {
@@ -1179,8 +1411,8 @@
                 crewContainer.innerHTML += `
                     <div class="profile-card" onclick="viewOtherProfile('${userData.uid}')">
                         <div class="avatar-circle crew-grid-avatar">${getInitial(userData.username)}</div>
-                        <h3 style="margin: 0 0 0.4rem;">${userData.username}</h3>
-                        <p class="text-soft" style="margin: 0 0 0.5rem;">${userData.department}</p>
+                        <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
+                        <p class="text-soft" style="margin: 0 0 0.5rem;">${escapeHtml(userData.department || "Crew")}</p>
                         <p style="margin: 0;"><span class="status-dot ${onlineClass}"></span>${statusText}</p>
                     </div>
                 `;
@@ -1195,6 +1427,9 @@
             if (!currentUserData) return;
             document.getElementById("my-username").innerText = currentUserData.username;
             document.getElementById("my-dept").innerText = currentUserData.department;
+            document.getElementById("my-bio-display").innerText = currentUserData.bio?.trim() ? currentUserData.bio : "No bio added yet.";
+            document.getElementById("edit-username").value = currentUserData.username || "";
+            document.getElementById("edit-bio").value = currentUserData.bio || "";
 
             const friendsContainer = document.getElementById("my-friends-container");
             const myFriends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
@@ -1214,8 +1449,8 @@
                 friendsContainer.innerHTML += `
                     <div class="profile-card" onclick="viewOtherProfile('${userData.uid}')">
                         <div class="avatar-circle crew-grid-avatar">${getInitial(userData.username)}</div>
-                        <h3 style="margin: 0 0 0.4rem;">${userData.username}</h3>
-                        <p class="text-soft" style="margin: 0;">${userData.department}</p>
+                        <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
+                        <p class="text-soft" style="margin: 0;">${escapeHtml(userData.department || "Crew")}</p>
                     </div>
                 `;
             });
@@ -1223,6 +1458,28 @@
             if (friendsContainer.innerHTML.trim() === "") {
                 friendsContainer.innerHTML = "<p class='empty-text'>No contacts added yet. Browse the crew roster.</p>";
             }
+        };
+
+        window.saveProfileEdits = async function () {
+            if (!auth.currentUser || !currentUserData) return;
+
+            const newUsername = document.getElementById("edit-username").value.trim();
+            const newBio = document.getElementById("edit-bio").value.trim();
+
+            if (!newUsername) {
+                alert("Username cannot be empty.");
+                return;
+            }
+
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                username: newUsername,
+                bio: newBio
+            });
+
+            currentUserData.username = newUsername;
+            currentUserData.bio = newBio;
+            loadMyProfile();
+            updateComposerAvatar();
         };
 
         window.viewOtherProfile = async function (uid) {
@@ -1234,6 +1491,7 @@
             const userData = userSnap.data();
             document.getElementById("other-username").innerText = userData.username;
             document.getElementById("other-dept").innerText = userData.department;
+            document.getElementById("other-bio-display").innerText = userData.bio?.trim() ? userData.bio : "No bio available.";
 
             const isOnline = userData.status === "online";
             document.getElementById("other-status-dot").className = "status-dot " + (isOnline ? "status-online" : "status-offline");
@@ -1300,7 +1558,7 @@
 
                 messages.forEach((message) => {
                     const bubbleClass = message.senderId === myUid ? "chat-sent" : "chat-received";
-                    chatHistory.innerHTML += `<div class="chat-bubble ${bubbleClass}">${message.text}</div>`;
+                    chatHistory.innerHTML += `<div class="chat-bubble ${bubbleClass}">${escapeHtml(message.text)}</div>`;
                 });
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             });
