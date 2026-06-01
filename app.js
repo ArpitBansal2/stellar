@@ -42,9 +42,8 @@ let viewingUserId = null;
 let currentChatUnsubscribe = null;
 let initialPageLoad = true;
 
-// creates little star dots and scatters them around the background
 function generateStars() {
-    const container = document.getElementById("stars-wrapper");
+    const container = document.getElementById("starswrapper");
     for (let i = 0; i < 180; i++) {
         const star = document.createElement("div");
         const size = Math.random() * 2.2 + 0.8;
@@ -60,13 +59,11 @@ function generateStars() {
 }
 
 function getInitial(name) {
-    // just grab the first letter
     var firstChar = name ? name.charAt(0).toUpperCase() : "?";
     return firstChar;
 }
 
 function getChatId(uidOne, uidTwo) {
-    // sort IDs so the chat room is always the same regardless of who opens it
     if (uidOne < uidTwo) {
         return uidOne + "_" + uidTwo;
     } else {
@@ -122,19 +119,19 @@ generateStars();
 
 window.switchPage = function (targetPageId) {
     preserveScroll(() => {
-        document.querySelectorAll(".page-section").forEach((page) => page.classList.remove("active-page"));
-        document.getElementById(targetPageId).classList.add("active-page");
+        document.querySelectorAll(".pagesection").forEach((page) => page.classList.remove("activepage"));
+        document.getElementById(targetPageId).classList.add("activepage");
 
         if (targetPageId !== "chat-page") stopChatListener();
         if (targetPageId === "home") loadFeed();
 
         const navItems = document.querySelectorAll(".nav-item");
-        navItems.forEach((item) => item.classList.remove("active-link"));
+        navItems.forEach((item) => item.classList.remove("activelink"));
 
-        if (targetPageId === "landing" && navItems[0]) navItems[0].classList.add("active-link");
-        if (targetPageId === "home" && navItems[1]) navItems[1].classList.add("active-link");
-        if (targetPageId === "crew" && navItems[2]) navItems[2].classList.add("active-link");
-        if (targetPageId === "profile" && navItems[3]) navItems[3].classList.add("active-link");
+        if (targetPageId === "landing" && navItems[0]) navItems[0].classList.add("activelink");
+        if (targetPageId === "home" && navItems[1]) navItems[1].classList.add("activelink");
+        if (targetPageId === "crew" && navItems[2]) navItems[2].classList.add("activelink");
+        if (targetPageId === "profile" && navItems[3]) navItems[3].classList.add("activelink");
     });
 };
 
@@ -255,14 +252,14 @@ window.submitPost = async function () {
 
 window.loadFeed = async function () {
     const feedContainer = document.getElementById("feed-container");
-    feedContainer.innerHTML = "<p class='empty-state'>Fetching transmissions...</p>";
+    feedContainer.innerHTML = "<p class='emptystate'>Fetching transmissions...</p>";
 
     try {
         const postQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(postQuery);
 
         if (querySnapshot.empty) {
-            feedContainer.innerHTML = "<p class='empty-state'>No logs found in this sector.</p>";
+            feedContainer.innerHTML = "<p class='emptystate'>No logs found in this sector.</p>";
             return;
         }
 
@@ -278,7 +275,7 @@ window.loadFeed = async function () {
             const isMyPost = auth.currentUser && postData.authorId === auth.currentUser.uid;
 
             const deleteButtonHtml = isMyPost
-                ? `<button class="action-btn delete-btn" onclick="deletePost('${postId}')">🗑 Delete</button>`
+                ? `<button class="actionbtn deletebtn" onclick="deletePost('${postId}')">🗑 Delete</button>`
                 : "";
 
             let repliesHtml = "";
@@ -296,28 +293,28 @@ window.loadFeed = async function () {
             }
 
             feedContainer.innerHTML += `
-                <div class="feed-post">
+                <div class="feedpost">
                     <div class="post-shell">
-                        <div class="post-header">
-                            <div class="user-avatar">${getInitial(postData.authorName)}</div>
+                        <div class="postheader">
+                            <div class="useravatar">${getInitial(postData.authorName)}</div>
                             <div>
                                 <strong>${escapeHtml(postData.authorName || "Unknown")}</strong>
-                                <div class="text-muted" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
+                                <div class="textmuted" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
                                 <div class="post-badges">
                                     <span class="post-chip">Mission Broadcast</span>
                                 </div>
                             </div>
                         </div>
-                        <p class="post-body">${escapeHtml(postData.content || "")}</p>
-                        <div class="post-actions">
-                            <button class="action-btn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
-                            <button class="action-btn" onclick="toggleReplyBox('${postId}')">↩ Reply (${repliesArray.length})</button>
+                        <p class="postbody">${escapeHtml(postData.content || "")}</p>
+                        <div class="postactions">
+                            <button class="actionbtn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
+                            <button class="actionbtn" onclick="toggleReplyBox('${postId}')">↩ Reply (${repliesArray.length})</button>
                             ${deleteButtonHtml}
                         </div>
-                        <div class="reply-section hidden" id="replybox-${postId}">
-                            <div class="reply-input-row">
+                        <div class="replysection hidden" id="replybox-${postId}">
+                            <div class="replyinputrow">
                                 <input type="text" id="reply-input-${postId}" placeholder="Write a reply..." />
-                                <button class="btn-reply" onclick="addReply('${postId}')">Reply</button>
+                                <button class="btnreply" onclick="addReply('${postId}')">Reply</button>
                             </div>
                             ${repliesHtml}
                         </div>
@@ -327,7 +324,7 @@ window.loadFeed = async function () {
         });
     } catch (error) {
         console.log(error.message);
-        feedContainer.innerHTML = "<p class='empty-state'>Could not load transmissions.</p>";
+        feedContainer.innerHTML = "<p class='emptystate'>Could not load transmissions.</p>";
     }
 };
 
@@ -387,7 +384,7 @@ window.deletePost = async function (postId) {
 
 window.loadCrewRoster = async function () {
     const crewContainer = document.getElementById("crew-grid-container");
-    crewContainer.innerHTML = "<p class='empty-state'>Scanning personnel records...</p>";
+    crewContainer.innerHTML = "<p class='emptystate'>Scanning personnel records...</p>";
     const usersSnapshot = await getDocs(collection(db, "users"));
     crewContainer.innerHTML = "";
 
@@ -399,17 +396,17 @@ window.loadCrewRoster = async function () {
         const statusText = userData.status === "online" ? "Online" : "Offline";
 
         crewContainer.innerHTML += `
-            <div class="crew-card" onclick="viewOtherProfile('${userData.uid}')">
-                <div class="user-avatar crew-card-avatar">${getInitial(userData.username)}</div>
+            <div class="crewcard" onclick="viewOtherProfile('${userData.uid}')">
+                <div class="useravatar crewcardavatar">${getInitial(userData.username)}</div>
                 <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
-                <p class="text-muted" style="margin: 0 0 0.5rem;">${escapeHtml(userData.department || "Crew")}</p>
+                <p class="textmuted" style="margin: 0 0 0.5rem;">${escapeHtml(userData.department || "Crew")}</p>
                 <p style="margin: 0;"><span class="status ${onlineClass}"></span>${statusText}</p>
             </div>
         `;
     });
 
     if (crewContainer.innerHTML.trim() === "") {
-        crewContainer.innerHTML = "<p class='empty-state'>No other crew members found yet.</p>";
+        crewContainer.innerHTML = "<p class='emptystate'>No other crew members found yet.</p>";
     }
 };
 
@@ -425,7 +422,7 @@ window.loadMyProfile = async function () {
     const myFriends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
 
     if (myFriends.length === 0) {
-        friendsContainer.innerHTML = "<p class='empty-state'>No contacts added yet. Browse the crew roster.</p>";
+        friendsContainer.innerHTML = "<p class='emptystate'>No contacts added yet. Browse the crew roster.</p>";
         return;
     }
 
@@ -437,16 +434,16 @@ window.loadMyProfile = async function () {
         if (!myFriends.includes(userData.uid)) return;
 
         friendsContainer.innerHTML += `
-            <div class="crew-card" onclick="viewOtherProfile('${userData.uid}')">
-                <div class="user-avatar crew-card-avatar">${getInitial(userData.username)}</div>
+            <div class="crewcard" onclick="viewOtherProfile('${userData.uid}')">
+                <div class="useravatar crewcardavatar">${getInitial(userData.username)}</div>
                 <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
-                <p class="text-muted" style="margin: 0;">${escapeHtml(userData.department || "Crew")}</p>
+                <p class="textmuted" style="margin: 0;">${escapeHtml(userData.department || "Crew")}</p>
             </div>
         `;
     });
 
     if (friendsContainer.innerHTML.trim() === "") {
-        friendsContainer.innerHTML = "<p class='empty-state'>No contacts added yet. Browse the crew roster.</p>";
+        friendsContainer.innerHTML = "<p class='emptystate'>No contacts added yet. Browse the crew roster.</p>";
     }
 };
 
@@ -485,7 +482,7 @@ window.viewOtherProfile = async function (uid) {
     const isOnline = userData.status === "online";
     document.getElementById("other-status").className = "status " + (isOnline ? "dot-online" : "dot-offline");
     document.getElementById("other-status-text").innerText = isOnline ? "Online" : "Offline";
-    document.getElementById("other-status-text").className = isOnline ? "text-online" : "text-muted";
+    document.getElementById("other-status-text").className = isOnline ? "textonline" : "textmuted";
 
     const myFriends = Array.isArray(currentUserData?.friends) ? currentUserData.friends : [];
     const friendButton = document.getElementById("friend-btn");
@@ -529,7 +526,7 @@ window.openChat = async function () {
     document.getElementById("chat-title").innerText = "Secure Comm: " + document.getElementById("other-username").innerText;
 
     const chatHistory = document.getElementById("chat-history");
-    chatHistory.innerHTML = "<p class='empty-state'>Securing connection...</p>";
+    chatHistory.innerHTML = "<p class='emptystate'>Securing connection...</p>";
     stopChatListener();
 
     const messageQuery = query(collection(db, "messages"), where("chatId", "==", chatId));
@@ -541,13 +538,13 @@ window.openChat = async function () {
 
         chatHistory.innerHTML = "";
         if (messages.length === 0) {
-            chatHistory.innerHTML = "<p class='empty-state'>No messages yet. Send a transmission.</p>";
+            chatHistory.innerHTML = "<p class='emptystate'>No messages yet. Send a transmission.</p>";
             return;
         }
 
         messages.forEach((message) => {
             const bubbleClass = message.senderId === myUid ? "bubble-sent" : "bubble-received";
-            chatHistory.innerHTML += `<div class="chat-bubble ${bubbleClass}">${escapeHtml(message.text)}</div>`;
+            chatHistory.innerHTML += `<div class="chatbubble ${bubbleClass}">${escapeHtml(message.text)}</div>`;
         });
         chatHistory.scrollTop = chatHistory.scrollHeight;
     });
