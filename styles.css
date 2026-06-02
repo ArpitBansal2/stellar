@@ -695,12 +695,26 @@ textarea {
     align-self: flex-end;
     background: rgba(0, 229, 255, 0.09) ;
     border: 1px solid  rgba(0, 229, 255, 0.35);
+    border-radius: 10px;
+    margin: 10px;
+    width: min-content;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .bubble-received {
     align-self: flex-start;
     background: rgba(157, 77, 255, 0.1);
     border: 1px solid rgba(157, 77, 255, 0.35) ;
+    border-radius: 10px;
+    margin: 10px;
+    width: min-content;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .chat-input-row {
