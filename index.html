@@ -3,72 +3,76 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StellarNet</title>
+    <title>StellarNet </title>
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div id="starswrapper"></div>
-    <div class="bgglow glowleft"></div>
-    <div class="bgglow glowright"></div>
+    <div id="starscontainer"></div>
+    <div class="spaceglow glowone"></div>
+    <div class="spaceglow glowtwo"></div>
 
     <nav>
-        <div class="logo">Stellar<span>Net</span></div>
-        <div class="navlinks" id="mainnav" style="display: none;">
-            <a class="navitem activelink" onclick="switchPage('landing')">Home</a>
-            <a class="navitem" onclick="switchPage('home')">Messages</a>
-            <a class="navitem" onclick="switchPage('crew'); loadCrewRoster();">Crew </a>
-            <a class="navitem" onclick="switchPage('profile'); loadMyProfile();">My Profile</a>
-            <a class="navitem navlogout" onclick="logoutUser()">Log Out</a>
+        <div class="logo" id="logo">Stellar<span>Net</span></div>
+
+        <div class="navlinks" id="main-nav" style="display: none;">
+            <a class="nav-item activelink" onclick="switchPage('landing')">Home</a>
+            <a class="nav-item" onclick="switchPage('home')">Posts</a>
+            <a class="nav-item" onclick="switchPage('crew'); loadCrewRoster();">Crew</a>
+            <a class="nav-item" onclick="switchPage('profile'); loadMyProfile();">My Profile</a>
+            <a class="nav-item logoutbtn" onclick="logoutUser()">Log Out</a>
         </div>
     </nav>
 
     <div class="container">
         <section id="landing" class="pagesection activepage">
-            <div class="landinglayout">
-                <div class="landingtext">
-                    <h1 class="landingheading">
+            <div class="landingpage">
+                <div class="landingcontent">
+                    <h1 class="landingtitle">
                         Explore the station.
                         <br />
                         Build your <span>crew network.</span>
                     </h1>
-                    <p class="landingsubheading">
+
+                    <p class="landingsubtitle">
                         StellarNet is a space-themed social platform where cadets connect through crew profiles,
                         live posts, contacts, secure direct messages, media-rich broadcasts, and threaded replies.
                     </p>
 
-                    <div class="landingbtnrow" id="landingauthbuttons">
-                        <button class="btnprimary" onclick="openAuthPage('register')">Register</button>
-                        <button class="btnsecondary" onclick="openAuthPage('login')"> Login</button>
+                    <div class="landingbuttons" id="landing-auth-buttons">
+                        <button class="mainbtn" onclick="openAuthPage('register')">Sign Up</button>
+                        <button class="secondarybtn" onclick="openAuthPage('login')">Log In</button>
                     </div>
 
-                    <div class="landingbtnrow" id="landingenterbutton" style="display: none;">
-                        <button class="btnprimary" onclick="switchPage('home')">Enter Station Feed &rarr;</button>
+                    <div class="landingbuttons" id="landing-enter-button" style="display: none;">
+                        <button class="mainbtn" onclick="switchPage('home')">Enter Station Feed &rarr;</button>
                     </div>
 
-                    <div class="featurecards">
-                        <div class="featurecard">
+                    <div class="landingpoints">
+                        <div class="landingpoint">
                             <strong>Profiles</strong>
-                            Edit your call sign, add a bio, and manage your personal quarters.
+                            Edit your call sign, add a bio, and manage your personal profiles.
                         </div>
-                        <div class="featurecard">
+                        <div class="landingpoint">
                             <strong>Broadcasts</strong>
                             Share text, like posts, and reply to threads.
                         </div>
-                        <div class="featurecard">
-                            <strong>Posts</strong>
+                        <div class="landingpoint">
+                            <strong>Messages</strong>
                             Add contacts and chat through direct secure comms.
                         </div>
                     </div>
                 </div>
 
-                <div class="landingvisualbox">
+                <div class="landingvisual">
                     <div class="shootingstar one"></div>
                     <div class="shootingstar two"></div>
                     <div class="shootingstar three"></div>
 
-                    <div class="visualinfocard">
+                    <div class="visualcard">
                         <h3>Home</h3>
-                        <p>Crew status, mission chatter, and private comms — all in one clean station interface.</p>
+                        <p>
+                            Crew status, mission chatter, and private comms — all in one.
+                        </p>
                     </div>
 
                     <div class="planet"></div>
@@ -83,27 +87,27 @@
 
         <section id="auth" class="pagesection">
             <div class="contentpanel authpanel">
-                <h2 class="sectionheading" id="authtitle">Station Onboarding</h2>
+                <h2 class="sectiontitle" id="auth-title">Station Onboarding</h2>
 
-                <div class="formgroup">
+                <div class="input-group">
                     <label>Email Address</label>
-                    <input type="email" id="authemail" placeholder="cadet@space.fleet" />
+                    <input type="email" id="auth-email" placeholder="cadet@space.fleet" />
                 </div>
 
-                <div class="formgroup">
+                <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="authpassword" placeholder="••••••••" />
+                    <input type="password" id="auth-password" placeholder="••••••••" />
                 </div>
 
                 <div id="register-fields">
-                    <div class="formgroup">
+                    <div class="input-group">
                         <label>Call Sign (Username)</label>
-                        <input type="text" id="authusername" placeholder="e.g. StarLord99" />
+                        <input type="text" id="auth-username" placeholder="e.g. StarLord99" />
                     </div>
 
-                    <div class="formgroup">
+                    <div class="input-group">
                         <label>Assigned Department</label>
-                        <select id="authdepartment">
+                        <select id="auth-department">
                             <option>Engineering</option>
                             <option>Command</option>
                             <option>Science</option>
@@ -112,13 +116,13 @@
                     </div>
                 </div>
 
-                <p id="auth-error" class="errormessage"></p>
+                <p id="auth-error" class="errortext"></p>
 
-                <button class="btnprimary fullwidth" id="authbtn" onclick="handleAuth()">
+                <button class="mainbtn fullwidth" id="auth-btn" onclick="handleAuth()">
                     Initialize Profile
                 </button>
 
-                <p class="authswitchtext" id="authtoggle" onclick="toggleAuthMode()">
+                <p class="authtoggle" id="authtoggle" onclick="toggleAuthMode()">
                     Already stationed here? Login instead.
                 </p>
             </div>
@@ -126,96 +130,94 @@
 
         <section id="home" class="pagesection">
             <div class="contentpanel">
-                <h2 class="sectionheading">Broadcast to Station</h2>
-                <textarea id="postcontent" placeholder="Share a mission log, update, or thought..."></textarea>
+                <h2 class="sectiontitle">Broadcast To Station</h2>
+                <textarea id="postcontent" placeholder="Share an update, message or thought..."></textarea>
                 <div class="btnrow" style="margin-top: 1rem;">
-                    <button class="btnprimary" onclick="submitPost()">Transmit Message</button>
+                    <button class="mainbtn" onclick="submitPost()">Post Message</button>
                 </div>
             </div>
 
             <div class="contentpanel">
-                <h2 class="sectionheading">Station Logs</h2>
-                <div id="feedcontainer">Loading transmissions...</div>
+                <h2 class="sectiontitle">Station Logs</h2>
+                <div id="global-feed-container">Loading transmissions...</div>
             </div>
         </section>
 
         <section id="crew" class="pagesection">
             <div class="contentpanel">
-                <h2 class="sectionheading">Crew </h2>
-                <div class="crewgrid" id="crewgridcontainer"></div>
+                <h2 class="sectiontitle">Crew</h2>
+                <div class="directorygrid" id="crewgrid-container"></div>
             </div>
         </section>
 
         <section id="profile" class="pagesection">
             <div class="contentpanel">
-                <h2 class="sectionheading">My Profile</h2>
+                <h2 class="sectiontitle">My Profile</h2>
 
-                <div class="profileheader">
-                    <div class="profileavatarlarge">👨‍🚀</div>
+                <div class="profileheaderlayout">
+                    <div class="largeavatar">👨‍🚀</div>
                     <div>
-                        <h1 class="profileusername" id="myusername">Loading...</h1>
-                        <p class="profileinfo textmuted">Department: <span id="mydept">...</span></p>
-                        <p class="profileinfo">
-                            <span class="status dotonline"></span>
-                            <span class="textonline">Online</span>
+                        <h1 class="profilename" id="my-username">Loading...</h1>
+                        <p class="profiledata textsoft">
+                            Department: <span id="my-dept">...</span>
                         </p>
+
                     </div>
                 </div>
 
-                <div class="bio" id="mybiodisplay">No bio added yet.</div>
+                <div class="bio" id="my-bio-display">No bio added yet.</div>
 
-                <div class="profileeditbox">
+                <div class="profileedit">
                     <h3 style="margin-top: 0; color: var(--glow-blue);">Edit Profile</h3>
-
-                    <div class="formgroup">
+                    <div class="input-group">
                         <label>Edit Username</label>
-                        <input type="text" id="editusername" placeholder="Update your call sign" />
+                        <input type="text" id="edit-username" placeholder="Update your call sign" />
                     </div>
-
-                    <div class="formgroup">
+                    <div class="input-group">
                         <label>Edit Bio</label>
-                        <textarea id="editbio" placeholder="Tell the station a little about yourself..."></textarea>
+                        <textarea id="edit-bio" placeholder="Tell the station a little about yourself..."></textarea>
                     </div>
-
                     <div class="btnrow">
-                        <button class="btnprimary" onclick="saveProfileEdits()">Save Changes</button>
+                        <button class="mainbtn" onclick="saveProfileEdits()">Save Changes</button>
                     </div>
                 </div>
 
-                <h2 class="sectionheading" style="margin-top: 2rem;">My Contacts</h2>
-                <div class="crewgrid" id="myfriendscontainer">
-                    <p class="emptystate">Loading contacts...</p>
+                <h2 class="sectiontitle" style="margin-top: 2rem;">My Contacts</h2>
+                <div class="directorygrid" id="my-friends-container">
+                    <p class="emptytext">Loading contacts...</p>
                 </div>
             </div>
         </section>
 
-        <section id="otherprofile" class="pagesection">
+        <section id="other-profile" class="pagesection">
             <div class="contentpanel">
-                <button class="btnghost" onclick="switchPage('crew')" style="margin-bottom: 1rem;">
+                <button class="ghostbtn" onclick="switchPage('crew')" style="margin-bottom: 1rem;">
                     &larr; Back to Crew
                 </button>
 
-                <h2 class="sectionheading">Information</h2>
+                <h2 class="sectiontitle">DATA</h2>
 
-                <div class="profileheader">
-                    <div class="profileavatarlarge">👽</div>
+                <div class="profileheaderlayout">
+                    <div class="largeavatar">👽</div>
                     <div>
-                        <h1 class="profileusername" id="otherusername">Loading...</h1>
-                        <p class="profileinfo textmuted">Department: <span id="otherdept">...</span></p>
-                        <p class="profileinfo">
-                            <span id="otherstatus" class="status"></span>
-                            <span id="otherstatustext">...</span>
+                        <h1 class="profilename" id="other-username">Loading...</h1>
+                        <p class="profiledata textsoft">
+                            Department: <span id="other-dept">...</span>
+                        </p>
+                        <p class="profiledata">
+                            <span id="other-status" class="status"></span>
+                            <span id="other-status-text">...</span>
                         </p>
                     </div>
                 </div>
 
-                <div class="bio" id="otherbiodisplay">No bio available.</div>
+                <div class="bio" id="other-bio-display">No bio available.</div>
 
                 <div class="btnrow" style="margin-top: 1.5rem;">
-                    <button class="btnprimary" id="friendbtn" onclick="toggleFriend()">
+                    <button class="mainbtn" id="friend-btn" onclick="toggleFriend()">
                         + Add to Contacts
                     </button>
-                    <button class="btnsecondary" onclick="openChat()">
+                    <button class="secondarybtn" onclick="openChat()">
                         ✉ Secure Comm
                     </button>
                 </div>
@@ -224,26 +226,24 @@
 
         <section id="chat-page" class="pagesection">
             <div class="contentpanel">
-                <button class="btnghost" onclick="switchPage('other-profile')" style="margin-bottom: 1rem;">
+                <button class="ghostbtn" onclick="switchPage('other-profile')" style="margin-bottom: 1rem;">
                     &larr; Back to Info
                 </button>
 
-                <h2 class="sectionheading" id="chattitle">Secure Comm</h2>
+                <h2 class="sectiontitle" id="chat-title">Secure Comm</h2>
 
-                <div class="chatwindow" id="chathistory">
-                    <p class="emptystate">Initializing secure connection...</p>
+                <div class="chatbox" id="chat-history">
+                    <p class="emptytext">Initializing secure connection...</p>
                 </div>
 
                 <div class="chatinputrow">
-                    <input type="text" id="chatinput" placeholder="Type message..." />
-                    <button id="sendBtn" class="send-chat-message" onclick="sendChatMessage()">
-                        Send
-                    </button>
+                    <input type="text" id="chat-input" placeholder="Type message..." />
+                    <button class="mainbtn" onclick="sendChatMessage()">Send</button>
                 </div>
             </div>
         </section>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
