@@ -8,17 +8,17 @@
 </head>
 <body>
     <div id="starswrapper"></div>
-    <div class="bg-glow glow-left"></div>
-    <div class="bg-glow glow-right"></div>
+    <div class="bgglow glowleft"></div>
+    <div class="bgglow glowright"></div>
 
     <nav>
         <div class="logo">Stellar<span>Net</span></div>
-        <div class="navlinks" id="main-nav" style="display: none;">
-            <a class="nav-item activelink" onclick="switchPage('landing')">Home</a>
-            <a class="nav-item" onclick="switchPage('home')">Messages</a>
-            <a class="nav-item" onclick="switchPage('crew'); loadCrewRoster();">Crew </a>
-            <a class="nav-item" onclick="switchPage('profile'); loadMyProfile();">My Profile</a>
-            <a class="nav-item navlogout" onclick="logoutUser()">Log Out</a>
+        <div class="navlinks" id="mainnav" style="display: none;">
+            <a class="navitem activelink" onclick="switchPage('landing')">Home</a>
+            <a class="navitem" onclick="switchPage('home')">Messages</a>
+            <a class="navitem" onclick="switchPage('crew'); loadCrewRoster();">Crew </a>
+            <a class="navitem" onclick="switchPage('profile'); loadMyProfile();">My Profile</a>
+            <a class="navitem navlogout" onclick="logoutUser()">Log Out</a>
         </div>
     </nav>
 
@@ -36,12 +36,12 @@
                         live posts, contacts, secure direct messages, media-rich broadcasts, and threaded replies.
                     </p>
 
-                    <div class="landingbtnrow" id="landing-auth-buttons">
+                    <div class="landingbtnrow" id="landingauthbuttons">
                         <button class="btnprimary" onclick="openAuthPage('register')">Register</button>
                         <button class="btnsecondary" onclick="openAuthPage('login')"> Login</button>
                     </div>
 
-                    <div class="landingbtnrow" id="landing-enter-button" style="display: none;">
+                    <div class="landingbtnrow" id="landingenterbutton" style="display: none;">
                         <button class="btnprimary" onclick="switchPage('home')">Enter Station Feed &rarr;</button>
                     </div>
 
@@ -55,7 +55,7 @@
                             Share text, like posts, and reply to threads.
                         </div>
                         <div class="featurecard">
-                            <strong>Messages</strong>
+                            <strong>Posts</strong>
                             Add contacts and chat through direct secure comms.
                         </div>
                     </div>
@@ -83,27 +83,27 @@
 
         <section id="auth" class="pagesection">
             <div class="contentpanel authpanel">
-                <h2 class="sectionheading" id="auth-title">Station Onboarding</h2>
+                <h2 class="sectionheading" id="authtitle">Station Onboarding</h2>
 
                 <div class="formgroup">
                     <label>Email Address</label>
-                    <input type="email" id="auth-email" placeholder="cadet@space.fleet" />
+                    <input type="email" id="authemail" placeholder="cadet@space.fleet" />
                 </div>
 
                 <div class="formgroup">
                     <label>Password</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" />
+                    <input type="password" id="authpassword" placeholder="••••••••" />
                 </div>
 
                 <div id="register-fields">
                     <div class="formgroup">
                         <label>Call Sign (Username)</label>
-                        <input type="text" id="auth-username" placeholder="e.g. StarLord99" />
+                        <input type="text" id="authusername" placeholder="e.g. StarLord99" />
                     </div>
 
                     <div class="formgroup">
                         <label>Assigned Department</label>
-                        <select id="auth-department">
+                        <select id="authdepartment">
                             <option>Engineering</option>
                             <option>Command</option>
                             <option>Science</option>
@@ -114,7 +114,7 @@
 
                 <p id="auth-error" class="errormessage"></p>
 
-                <button class="btnprimary fullwidth" id="auth-btn" onclick="handleAuth()">
+                <button class="btnprimary fullwidth" id="authbtn" onclick="handleAuth()">
                     Initialize Profile
                 </button>
 
@@ -135,14 +135,14 @@
 
             <div class="contentpanel">
                 <h2 class="sectionheading">Station Logs</h2>
-                <div id="feed-container">Loading transmissions...</div>
+                <div id="feedcontainer">Loading transmissions...</div>
             </div>
         </section>
 
         <section id="crew" class="pagesection">
             <div class="contentpanel">
                 <h2 class="sectionheading">Crew </h2>
-                <div class="crewgrid" id="crew-grid-container"></div>
+                <div class="crewgrid" id="crewgridcontainer"></div>
             </div>
         </section>
 
@@ -153,28 +153,28 @@
                 <div class="profileheader">
                     <div class="profileavatarlarge">👨‍🚀</div>
                     <div>
-                        <h1 class="profileusername" id="my-username">Loading...</h1>
-                        <p class="profileinfo textmuted">Department: <span id="my-dept">...</span></p>
+                        <h1 class="profileusername" id="myusername">Loading...</h1>
+                        <p class="profileinfo textmuted">Department: <span id="mydept">...</span></p>
                         <p class="profileinfo">
-                            <span class="status dot-online"></span>
+                            <span class="status dotonline"></span>
                             <span class="textonline">Online</span>
                         </p>
                     </div>
                 </div>
 
-                <div class="bio" id="my-bio-display">No bio added yet.</div>
+                <div class="bio" id="mybiodisplay">No bio added yet.</div>
 
                 <div class="profileeditbox">
                     <h3 style="margin-top: 0; color: var(--glow-blue);">Edit Profile</h3>
 
                     <div class="formgroup">
                         <label>Edit Username</label>
-                        <input type="text" id="edit-username" placeholder="Update your call sign" />
+                        <input type="text" id="editusername" placeholder="Update your call sign" />
                     </div>
 
                     <div class="formgroup">
                         <label>Edit Bio</label>
-                        <textarea id="edit-bio" placeholder="Tell the station a little about yourself..."></textarea>
+                        <textarea id="editbio" placeholder="Tell the station a little about yourself..."></textarea>
                     </div>
 
                     <div class="btnrow">
@@ -183,13 +183,13 @@
                 </div>
 
                 <h2 class="sectionheading" style="margin-top: 2rem;">My Contacts</h2>
-                <div class="crewgrid" id="my-friends-container">
+                <div class="crewgrid" id="myfriendscontainer">
                     <p class="emptystate">Loading contacts...</p>
                 </div>
             </div>
         </section>
 
-        <section id="other-profile" class="pagesection">
+        <section id="otherprofile" class="pagesection">
             <div class="contentpanel">
                 <button class="btnghost" onclick="switchPage('crew')" style="margin-bottom: 1rem;">
                     &larr; Back to Crew
@@ -200,19 +200,19 @@
                 <div class="profileheader">
                     <div class="profileavatarlarge">👽</div>
                     <div>
-                        <h1 class="profileusername" id="other-username">Loading...</h1>
-                        <p class="profileinfo textmuted">Department: <span id="other-dept">...</span></p>
+                        <h1 class="profileusername" id="otherusername">Loading...</h1>
+                        <p class="profileinfo textmuted">Department: <span id="otherdept">...</span></p>
                         <p class="profileinfo">
-                            <span id="other-status" class="status"></span>
-                            <span id="other-status-text">...</span>
+                            <span id="otherstatus" class="status"></span>
+                            <span id="otherstatustext">...</span>
                         </p>
                     </div>
                 </div>
 
-                <div class="bio" id="other-bio-display">No bio available.</div>
+                <div class="bio" id="otherbiodisplay">No bio available.</div>
 
                 <div class="btnrow" style="margin-top: 1.5rem;">
-                    <button class="btnprimary" id="friend-btn" onclick="toggleFriend()">
+                    <button class="btnprimary" id="friendbtn" onclick="toggleFriend()">
                         + Add to Contacts
                     </button>
                     <button class="btnsecondary" onclick="openChat()">
@@ -228,15 +228,17 @@
                     &larr; Back to Info
                 </button>
 
-                <h2 class="sectionheading" id="chat-title">Secure Comm</h2>
+                <h2 class="sectionheading" id="chattitle">Secure Comm</h2>
 
-                <div class="chatwindow" id="chat-history">
+                <div class="chatwindow" id="chathistory">
                     <p class="emptystate">Initializing secure connection...</p>
                 </div>
 
                 <div class="chatinputrow">
-                    <input type="text" id="chat-input" placeholder="Type message..." />
-                    <button class="btnprimary" onclick="sendChatMessage()">Send</button>
+                    <input type="text" id="chatinput" placeholder="Type message..." />
+                    <button id="sendBtn" class="send-chat-message" onclick="sendChatMessage()">
+                        Send
+                    </button>
                 </div>
             </div>
         </section>
