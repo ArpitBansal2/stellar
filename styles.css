@@ -702,6 +702,7 @@ textarea {
     padding-right: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+     
 }
 
 .bubble-received {
@@ -715,10 +716,12 @@ textarea {
     padding-right: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+    
 }
 
 .chat-input-row {
     display: flex;
+    flex-direction:row;
     gap: 1rem;
 }
 
