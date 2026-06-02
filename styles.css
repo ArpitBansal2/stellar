@@ -1,5 +1,5 @@
 :root {
-    
+
     --page-bg-1: #03050d;
     --page-bg-2: #091427;
     --page-bg-3: #14081f;
@@ -79,7 +79,7 @@ html, body {
     }
 }
 
-.bg-glow {
+.bgglow {
     position: fixed;
     border-radius: 50%;
     filter: blur(60px);
@@ -88,7 +88,7 @@ html, body {
     opacity: 0.22;
 }
 
-.glow-left {
+.glowleft {
     width: 320px;
     height: 320px;
     top: 10%;
@@ -97,7 +97,7 @@ html, body {
     animation: driftleft 16s ease-in-out infinite;
 }
 
-.glow-right {
+.glowright {
 
     width: 420px;
     height: 420px;
@@ -436,8 +436,6 @@ input, textarea, select {
     background: rgba(0, 0, 0, 0.25);
     color: var(--text-main);
     font: inherit;
-    margin: 7px;
-    margin-left: 0px;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -499,7 +497,7 @@ textarea {
 
 .btnreply {
     border: none;
-    padding: 0.52rem 0.8rem;
+    padding: 0.72rem 1.1rem;
     border-radius: 999px;
     cursor: pointer;
     font: inherit;
@@ -508,8 +506,6 @@ textarea {
     background: linear-gradient(135deg, var(--glow-blue), var(--glow-purple));
     box-shadow: 0 8px 18px rgba(0, 229, 255, 0.18);
     height: 2.75rem;
-    margin: 10px;
-    margin-left:0px;
 }
 
 .btnreply:hover {
@@ -657,23 +653,23 @@ textarea {
     margin-right: 0.35rem;
 }
 
-.dot-online {
+.dotonline {
     background: var(--green);
-    box-shadow: 0 0  9px rgba(61, 220, 132, 0.6);
+    box-shadow: 0 0  8px rgba(61, 220, 132, 0.6);
 }
 
-.dot-offline {  
-    background: var(--textsoft); 
-    
+.dotoffline {  
+     background: var(--textsoft); 
+     box-shadow: 0 0 8px rgb(255, 42, 42);
 }
 
-.contact-added {
+.contactadded {
     color: var(--red);
     border-color: rgba(255, 93, 115, 0.55);
     background: rgba(255, 93, 115, 0.06);
 }
 
-.chat-window {
+.chatwindow {
     height: 420px;
     overflow-y: auto;
     border-radius: 18px;
@@ -687,7 +683,7 @@ textarea {
     margin-bottom: 1rem;
 }
 
-.chat-bubble {
+.chatbubble {
     max-width: 72%;
     padding: 0.8rem 1rem;
     border-radius: 18px;
@@ -695,56 +691,40 @@ textarea {
     word-break: break-word;
 }
 
-.bubble-sent {
+.bubblesent {
 
     align-self: flex-end;
     background: rgba(0, 229, 255, 0.09) ;
     border: 1px solid  rgba(0, 229, 255, 0.35);
-    border-radius: 10px;
-    margin: 10px;
-    width: min-content;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-     
 }
 
-.bubble-received {
+.bubblereceived {
     align-self: flex-start;
     background: rgba(157, 77, 255, 0.1);
     border: 1px solid rgba(157, 77, 255, 0.35) ;
-    border-radius: 10px;
-    margin: 10px;
-    width: min-content;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    
 }
 
-.chat-input-row {
+.chatinputrow {
     display: flex;
-    flex-direction:row;
     gap: 1rem;
+
 }
 
-.chat-input-row input { 
+.chatinputrow input { 
     flex: 1; 
 }
 
-.reply-section {
+.replysection {
     margin-top: 1.2rem;
     padding-top: 1.1rem;
     border-top: 1px solid rgba(255,255,255,0.07);
 }
 
-.reply-section.hidden { 
+.replysection.hidden { 
     display: none; 
 }
 
-.reply-input-row {
+.replyinputrow {
     display: flex;
     gap: 0.8rem;
     margin-top: 0.2rem;
