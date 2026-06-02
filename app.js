@@ -24,12 +24,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
-    authDomain: "stellar-net-fcee6.firebaseapp.com",
-    projectId: "stellar-net-fcee6",
-    storageBucket: "stellar-net-fcee6.firebasestorage.app",
-    messagingSenderId: "1.01106207112e+11",
-    appId: "1:1.01106207112e+11:web:eee63537767e71c344d23d"
+  apiKey: "AIzaSyDxir2kWDWAfRnWe-5KtZImTls0Iiexj9s",
+  authDomain: "stellar-net-fcee6.firebaseapp.com",
+  projectId: "stellar-net-fcee6",
+  storageBucket: "stellar-net-fcee6.firebasestorage.app",
+  messagingSenderId: "101106207112",
+  appId: "1:101106207112:web:eee63537767e71c344d23d"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -43,7 +43,7 @@ let currentChatUnsubscribe = null;
 let initialPageLoad = true;
 
 function generateStars() {
-    const container = document.getElementById("starswrapper");
+    const container = document.getElementById("starscontainer");
     for (let i = 0; i < 180; i++) {
         const star = document.createElement("div");
         const size = Math.random() * 2.2 + 0.8;
@@ -59,16 +59,11 @@ function generateStars() {
 }
 
 function getInitial(name) {
-    var firstChar = name ? name.charAt(0).toUpperCase() : "?";
-    return firstChar;
+    return name ? name.charAt(0).toUpperCase() : "?";
 }
 
 function getChatId(uidOne, uidTwo) {
-    if (uidOne < uidTwo) {
-        return uidOne + "_" + uidTwo;
-    } else {
-        return uidTwo + "_" + uidOne;
-    }
+    return uidOne < uidTwo ? uidOne + "_" + uidTwo : uidTwo + "_" + uidOne;
 }
 
 function stopChatListener() {
@@ -105,7 +100,7 @@ function escapeHtml(text) {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
+        .replace(/\"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
 
@@ -147,44 +142,42 @@ window.toggleAuthMode = function () {
 window.handleAuth = async function () {
     const email = document.getElementById("auth-email").value.trim();
     const password = document.getElementById("auth-password").value.trim();
-    const errorBox = document.getElementById("auth-error");
-    errorBox.style.display = "none";
-    errorBox.innerText = "";
+    const username = document.getElementById("auth-username").value.trim();
+    const department = document.getElementById("auth-department").value;
+    const authError = document.getElementById("auth-error");
 
     try {
         if (isLoginMode) {
             await signInWithEmailAndPassword(auth, email, password);
-            switchPage("landing");
         } else {
-            const username = document.getElementById("auth-username").value.trim();
-            const department = document.getElementById("auth-department").value;
-            if (!username) {
-                errorBox.innerText = "Please enter a call sign.";
-                errorBox.style.display = "block";
-                return;
-            }
+            if (!username) throw new Error("Call sign is required.");
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const newUser = userCredential.user;
-            await setDoc(doc(db, "users", newUser.uid), {
-                uid: newUser.uid,
+            const newUserData = {
                 username,
                 department,
-                bio: "",
+                email,
+                uid: userCredential.user.uid,
+                status: "online",
                 friends: [],
-                status: "online"
-            });
-            switchPage("landing");
+                bio: ""
+            };
+            await setDoc(doc(db, "users", userCredential.user.uid), newUserData);
+            currentUserData = newUserData;
         }
-    } catch (err) {
-        errorBox.innerText = err.message;
-        errorBox.style.display = "block";
+
+        switchPage("home");
+    } catch (error) {
+        authError.style.display = "block";
+        authError.innerText = error.message;
     }
 };
 
 window.logoutUser = async function () {
-    await updateDoc(doc(db, "users", auth.currentUser.uid), { status: "offline" });
+    if (auth.currentUser) {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { status: "offline" });
+    }
+    stopChatListener();
     await signOut(auth);
-    currentUserData = null;
     switchPage("landing");
 };
 
@@ -220,7 +213,20 @@ onAuthStateChanged(auth, async (user) => {
         if (!currentUserData.bio) currentUserData.bio = "";
         await updateDoc(userRef, { status: "online" });
     }
-
+    if (userSnap.exists()) {
+    currentUserData = userSnap.data();
+} else {
+    // Recreate missing Firestore doc for existing auth user
+    await setDoc(userRef, {
+        uid: user.uid,
+        username: user.email.split("@")[0],
+        department: "Engineering",
+        bio: "",
+        friends: [],
+        status: "online"
+    });
+    currentUserData = (await getDoc(userRef)).data();
+}
     if (initialPageLoad) {
         initialPageLoad = false;
         switchPage("landing");
@@ -243,6 +249,7 @@ window.submitPost = async function () {
             replies: [],
             timestamp: serverTimestamp()
         });
+
         postBox.value = "";
         loadFeed();
     } catch (error) {
@@ -251,15 +258,15 @@ window.submitPost = async function () {
 };
 
 window.loadFeed = async function () {
-    const feedContainer = document.getElementById("feed-container");
-    feedContainer.innerHTML = "<p class='emptystate'>Fetching transmissions...</p>";
+    const feedContainer = document.getElementById("global-feed-container");
+    feedContainer.innerHTML = "<p class='emptytext'>Fetching transmissions...</p>";
 
     try {
         const postQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(postQuery);
 
         if (querySnapshot.empty) {
-            feedContainer.innerHTML = "<p class='emptystate'>No logs found in this sector.</p>";
+            feedContainer.innerHTML = "<p class='emptytext'>No messages yet.</p>";
             return;
         }
 
@@ -296,25 +303,26 @@ window.loadFeed = async function () {
                 <div class="feedpost">
                     <div class="post-shell">
                         <div class="postheader">
-                            <div class="useravatar">${getInitial(postData.authorName)}</div>
+                            <div class="avatarcircle">${getInitial(postData.authorName)}</div>
                             <div>
                                 <strong>${escapeHtml(postData.authorName || "Unknown")}</strong>
-                                <div class="textmuted" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
-                                <div class="post-badges">
-                                    <span class="post-chip">Mission Broadcast</span>
-                                </div>
+                                <div class="textsoft" style="font-size: 0.85rem;">[${escapeHtml(postData.authorDept || "Crew")}] · ${formatTimestamp(postData.timestamp)}</div>
+                              
                             </div>
                         </div>
-                        <p class="postbody">${escapeHtml(postData.content || "")}</p>
+
+                        <p class="postcontent">${escapeHtml(postData.content || "")}</p>
+
                         <div class="postactions">
                             <button class="actionbtn ${likeClass}" onclick="toggleLike('${postId}')">♥ Like (${likesArray.length})</button>
                             <button class="actionbtn" onclick="toggleReplyBox('${postId}')">↩ Reply (${repliesArray.length})</button>
                             ${deleteButtonHtml}
                         </div>
-                        <div class="replysection hidden" id="replybox-${postId}">
+
+                        <div class="replybox hidden" id="replybox-${postId}">
                             <div class="replyinputrow">
                                 <input type="text" id="reply-input-${postId}" placeholder="Write a reply..." />
-                                <button class="btnreply" onclick="addReply('${postId}')">Reply</button>
+                                <button class="replybtn" onclick="addReply('${postId}')">Reply</button>
                             </div>
                             ${repliesHtml}
                         </div>
@@ -324,7 +332,7 @@ window.loadFeed = async function () {
         });
     } catch (error) {
         console.log(error.message);
-        feedContainer.innerHTML = "<p class='emptystate'>Could not load transmissions.</p>";
+        feedContainer.innerHTML = "<p class='emptytext'>Could not load transmissions.</p>";
     }
 };
 
@@ -383,8 +391,8 @@ window.deletePost = async function (postId) {
 };
 
 window.loadCrewRoster = async function () {
-    const crewContainer = document.getElementById("crew-grid-container");
-    crewContainer.innerHTML = "<p class='emptystate'>Scanning personnel records...</p>";
+    const crewContainer = document.getElementById("crewgrid-container");
+    crewContainer.innerHTML = "<p class='emptytext'>Scanning personnel records...</p>";
     const usersSnapshot = await getDocs(collection(db, "users"));
     crewContainer.innerHTML = "";
 
@@ -392,21 +400,21 @@ window.loadCrewRoster = async function () {
         const userData = userDocument.data();
         if (auth.currentUser && userData.uid === auth.currentUser.uid) return;
 
-        const onlineClass = userData.status === "online" ? "dot-online" : "dot-offline";
+        const onlineClass = userData.status === "online" ? "statusonline" : "statusoffline";
         const statusText = userData.status === "online" ? "Online" : "Offline";
 
         crewContainer.innerHTML += `
-            <div class="crewcard" onclick="viewOtherProfile('${userData.uid}')">
-                <div class="useravatar crewcardavatar">${getInitial(userData.username)}</div>
+            <div class="profilecard" onclick="viewOtherProfile('${userData.uid}')">
+                <div class="avatarcircle crewgrid-avatar">${getInitial(userData.username)}</div>
                 <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
-                <p class="textmuted" style="margin: 0 0 0.5rem;">${escapeHtml(userData.department || "Crew")}</p>
+                <p class="textsoft" style="margin: 0 0 0.5rem;">${escapeHtml(userData.department || "Crew")}</p>
                 <p style="margin: 0;"><span class="status ${onlineClass}"></span>${statusText}</p>
             </div>
         `;
     });
 
     if (crewContainer.innerHTML.trim() === "") {
-        crewContainer.innerHTML = "<p class='emptystate'>No other crew members found yet.</p>";
+        crewContainer.innerHTML = "<p class='emptytext'>No other crew members found yet.</p>";
     }
 };
 
@@ -422,7 +430,7 @@ window.loadMyProfile = async function () {
     const myFriends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
 
     if (myFriends.length === 0) {
-        friendsContainer.innerHTML = "<p class='emptystate'>No contacts added yet. Browse the crew roster.</p>";
+        friendsContainer.innerHTML = "<p class='emptytext'>No contacts added yet. Browse the crew roster.</p>";
         return;
     }
 
@@ -434,16 +442,16 @@ window.loadMyProfile = async function () {
         if (!myFriends.includes(userData.uid)) return;
 
         friendsContainer.innerHTML += `
-            <div class="crewcard" onclick="viewOtherProfile('${userData.uid}')">
-                <div class="useravatar crewcardavatar">${getInitial(userData.username)}</div>
+            <div class="profilecard" onclick="viewOtherProfile('${userData.uid}')">
+                <div class="avatarcircle crewgrid-avatar">${getInitial(userData.username)}</div>
                 <h3 style="margin: 0 0 0.4rem;">${escapeHtml(userData.username || "Unknown")}</h3>
-                <p class="textmuted" style="margin: 0;">${escapeHtml(userData.department || "Crew")}</p>
+                <p class="textsoft" style="margin: 0;">${escapeHtml(userData.department || "Crew")}</p>
             </div>
         `;
     });
 
     if (friendsContainer.innerHTML.trim() === "") {
-        friendsContainer.innerHTML = "<p class='emptystate'>No contacts added yet. Browse the crew roster.</p>";
+        friendsContainer.innerHTML = "<p class='emptytext'>No contacts added yet. Browse the crew roster.</p>";
     }
 };
 
@@ -480,19 +488,19 @@ window.viewOtherProfile = async function (uid) {
     document.getElementById("other-bio-display").innerText = userData.bio?.trim() ? userData.bio : "No bio available.";
 
     const isOnline = userData.status === "online";
-    document.getElementById("other-status").className = "status " + (isOnline ? "dot-online" : "dot-offline");
+    document.getElementById("other-status").className = "status " + (isOnline ? "statusonline" : "statusoffline");
     document.getElementById("other-status-text").innerText = isOnline ? "Online" : "Offline";
-    document.getElementById("other-status-text").className = isOnline ? "textonline" : "textmuted";
+    document.getElementById("other-status-text").className = isOnline ? "textonline" : "textsoft";
 
     const myFriends = Array.isArray(currentUserData?.friends) ? currentUserData.friends : [];
     const friendButton = document.getElementById("friend-btn");
 
     if (myFriends.includes(uid)) {
         friendButton.innerText = "✓ Remove Contact";
-        friendButton.classList.add("contact-added");
+        friendButton.classList.add("friendadded");
     } else {
         friendButton.innerText = "+ Add to Contacts";
-        friendButton.classList.remove("contact-added");
+        friendButton.classList.remove("friendadded");
     }
 };
 
@@ -509,10 +517,10 @@ window.toggleFriend = async function () {
     const friendButton = document.getElementById("friend-btn");
     if (myFriends.includes(viewingUserId)) {
         friendButton.innerText = "✓ Remove Contact";
-        friendButton.classList.add("contact-added");
+        friendButton.classList.add("friendadded");
     } else {
         friendButton.innerText = "+ Add to Contacts";
-        friendButton.classList.remove("contact-added");
+        friendButton.classList.remove("friendadded");
     }
 };
 
@@ -526,7 +534,7 @@ window.openChat = async function () {
     document.getElementById("chat-title").innerText = "Secure Comm: " + document.getElementById("other-username").innerText;
 
     const chatHistory = document.getElementById("chat-history");
-    chatHistory.innerHTML = "<p class='emptystate'>Securing connection...</p>";
+    chatHistory.innerHTML = "<p class='emptytext'>Securing connection...</p>";
     stopChatListener();
 
     const messageQuery = query(collection(db, "messages"), where("chatId", "==", chatId));
@@ -538,12 +546,12 @@ window.openChat = async function () {
 
         chatHistory.innerHTML = "";
         if (messages.length === 0) {
-            chatHistory.innerHTML = "<p class='emptystate'>No messages yet. Send a transmission.</p>";
+            chatHistory.innerHTML = "<p class='emptytext'>No messages yet. Send a transmission.</p>";
             return;
         }
 
         messages.forEach((message) => {
-            const bubbleClass = message.senderId === myUid ? "bubble-sent" : "bubble-received";
+            const bubbleClass = message.senderId === myUid ? "chatsent" : "chatrecieved";
             chatHistory.innerHTML += `<div class="chatbubble ${bubbleClass}">${escapeHtml(message.text)}</div>`;
         });
         chatHistory.scrollTop = chatHistory.scrollHeight;
