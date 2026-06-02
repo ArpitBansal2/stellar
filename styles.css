@@ -436,6 +436,8 @@ input, textarea, select {
     background: rgba(0, 0, 0, 0.25);
     color: var(--text-main);
     font: inherit;
+    margin: 7px;
+    margin-left: 0px;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -497,7 +499,7 @@ textarea {
 
 .btnreply {
     border: none;
-    padding: 0.72rem 1.1rem;
+    padding: 0.52rem 0.8rem;
     border-radius: 999px;
     cursor: pointer;
     font: inherit;
@@ -506,6 +508,8 @@ textarea {
     background: linear-gradient(135deg, var(--glow-blue), var(--glow-purple));
     box-shadow: 0 8px 18px rgba(0, 229, 255, 0.18);
     height: 2.75rem;
+    margin: 10px;
+    margin-left:0px;
 }
 
 .btnreply:hover {
@@ -659,7 +663,8 @@ textarea {
 }
 
 .dot-offline {  
-     background: var(--textsoft); 
+    background: var(--textsoft); 
+    box-shadow: 0 0 8px rgba(255, 42, 42,0.6);
 }
 
 .contact-added {
