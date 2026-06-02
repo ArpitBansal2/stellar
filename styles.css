@@ -659,12 +659,12 @@ textarea {
 
 .dot-online {
     background: var(--green);
-    box-shadow: 0 0  8px rgba(61, 220, 132, 0.6);
+    box-shadow: 0 0  9px rgba(61, 220, 132, 0.6);
 }
 
 .dot-offline {  
     background: var(--textsoft); 
-    box-shadow: 0 0 8px rgba(255, 42, 42,0.6);
+    
 }
 
 .contact-added {
