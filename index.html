@@ -6,8 +6,9 @@
     <title>StellarNet </title>
     <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-    <div id="starscontainer"></div>
+<div id="starscontainer"></div>
     <div class="spaceglow glowone"></div>
     <div class="spaceglow glowtwo"></div>
 
@@ -15,6 +16,7 @@
         <div class="logo" id="logo">Stellar<span>Net</span></div>
 
         <div class="navlinks" id="main-nav" style="display: none;">
+            
             <a class="nav-item activelink" onclick="switchPage('landing')">Home</a>
             <a class="nav-item" onclick="switchPage('home')">Posts</a>
             <a class="nav-item" onclick="switchPage('crew'); loadCrewRoster();">Crew</a>
@@ -25,7 +27,9 @@
 
     <div class="container">
         <section id="landing" class="pagesection activepage">
+
             <div class="landingpage">
+                
                 <div class="landingcontent">
                     <h1 class="landingtitle">
                         Explore the station.
@@ -95,7 +99,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Password</label>
+                    <label>Password </label>
                     <input type="password" id="auth-password" placeholder="••••••••" />
                 </div>
 
@@ -110,8 +114,9 @@
                         <select id="auth-department">
                             <option>Engineering</option>
                             <option>Command</option>
-                            <option>Science</option>
+                            
                             <option>Medical</option>
+
                         </select>
                     </div>
                 </div>
@@ -131,14 +136,17 @@
         <section id="home" class="pagesection">
             <div class="contentpanel">
                 <h2 class="sectiontitle">Broadcast To Station</h2>
+
                 <textarea id="postcontent" placeholder="Share an update, message or thought..."></textarea>
                 <div class="btnrow" style="margin-top: 1rem;">
+
                     <button class="mainbtn" onclick="submitPost()">Post Message</button>
                 </div>
             </div>
 
             <div class="contentpanel">
                 <h2 class="sectiontitle">Station Logs</h2>
+
                 <div id="global-feed-container">Loading transmissions...</div>
             </div>
         </section>
@@ -146,11 +154,13 @@
         <section id="crew" class="pagesection">
             <div class="contentpanel">
                 <h2 class="sectiontitle">Crew</h2>
+
                 <div class="directorygrid" id="crewgrid-container"></div>
             </div>
         </section>
 
         <section id="profile" class="pagesection">
+
             <div class="contentpanel">
                 <h2 class="sectiontitle">My Profile</h2>
 
@@ -183,15 +193,19 @@
                 </div>
 
                 <h2 class="sectiontitle" style="margin-top: 2rem;">My Contacts</h2>
+
                 <div class="directorygrid" id="my-friends-container">
+
                     <p class="emptytext">Loading contacts...</p>
                 </div>
             </div>
         </section>
 
         <section id="other-profile" class="pagesection">
+
             <div class="contentpanel">
                 <button class="ghostbtn" onclick="switchPage('crew')" style="margin-bottom: 1rem;">
+
                     &larr; Back to Crew
                 </button>
 
@@ -201,11 +215,13 @@
                     <div class="largeavatar">👽</div>
                     <div>
                         <h1 class="profilename" id="other-username">Loading...</h1>
+
                         <p class="profiledata textsoft">
                             Department: <span id="other-dept">...</span>
                         </p>
                         <p class="profiledata">
                             <span id="other-status" class="status"></span>
+
                             <span id="other-status-text">...</span>
                         </p>
                     </div>
@@ -220,6 +236,7 @@
                     <button class="secondarybtn" onclick="openChat()">
                         ✉ Secure Comm
                     </button>
+
                 </div>
             </div>
         </section>
@@ -230,7 +247,7 @@
                     &larr; Back to Info
                 </button>
 
-                <h2 class="sectiontitle" id="chat-title">Secure Comm</h2>
+                 <h2 class="sectiontitle" id="chat-title">Secure Comm</h2>
 
                 <div class="chatbox" id="chat-history">
                     <p class="emptytext">Initializing secure connection...</p>
@@ -242,6 +259,9 @@
                 </div>
             </div>
         </section>
+
+
+
     </div>
 
     <script type="module" src="app.js"></script>
