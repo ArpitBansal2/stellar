@@ -31,9 +31,11 @@ const firebaseConfig = {
   storageBucket: "stellar-net-fcee6.firebasestorage.app",
   messagingSenderId: "101106207112",
   appId: "1:101106207112:web:eee63537767e71c344d23d"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -45,7 +47,9 @@ let currentChatUnsubscribe = null;
 let initialPageLoad = true;
 
 function generateStars() {
+
     const wrap = document.getElementById("starscontainer");
+
     let count = 0;
     
     while (count < 180) {
@@ -54,6 +58,7 @@ function generateStars() {
         
         star.className = "star";
         star.style.width = `${size}px`;
+
         star.style.height = `${size}px`;
         star.style.left = `${Math.random() * 100}vw`;
         star.style.top = `${Math.random() * 100}vh`;
@@ -62,19 +67,23 @@ function generateStars() {
         
         wrap.appendChild(star);
         count++;
+
     }
 }
 
 function getInitial(name) {
+
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
 }
 
 function getChatId(uid1, uid2) {
+
     return uid1 < uid2 ? `${uid1}${uid2}` : `${uid2}${uid1}`;
 }
 
 function stopChatListener() {
+
     if (currentChatUnsubscribe) {
         currentChatUnsubscribe();
         currentChatUnsubscribe = null;
@@ -83,6 +92,7 @@ function stopChatListener() {
 
 function setAuthMode(loginMode) {
     isLoginMode = loginMode;
+
     
     const title = document.getElementById("auth-title");
     const btn = document.getElementById("auth-btn");
@@ -91,11 +101,13 @@ function setAuthMode(loginMode) {
     const errBox = document.getElementById("auth-error");
 
     if (isLoginMode) {
+
         title.innerText = "Station Login";
         btn.innerText = "Access Terminal";
         toggle.innerText = "New recruit? Register here.";
         fields.style.display = "none";
     } else {
+
         title.innerText = "Station Onboarding";
         btn.innerText = "Initialize Profile";
         toggle.innerText = "Already stationed here? Login instead.";
@@ -107,12 +119,14 @@ function setAuthMode(loginMode) {
 }
 
 function formatTimestamp(ts) {
+
     if (!ts || typeof ts.toDate !== 'function') {
         return "Just now";
     }
     
     const date = ts.toDate();
     return date.toLocaleString([], {
+
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -122,9 +136,11 @@ function formatTimestamp(ts) {
 }
 
 function escapeHtml(str) {
+
     if (!str) return "";
     
     return String(str)
+
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -133,9 +149,11 @@ function escapeHtml(str) {
 }
 
 function preserveScroll(callback) {
+
     const top = window.scrollY;
     callback();
     requestAnimationFrame(() => {
+
         window.scrollTo(0, top);
     });
 }
@@ -143,7 +161,9 @@ function preserveScroll(callback) {
 generateStars();
 
 window.switchPage = function (targetId) {
+
     preserveScroll(() => {
+
         const pages = document.querySelectorAll(".pagesection");
         for (let i = 0; i < pages.length; i++) {
             pages[i].classList.remove("activepage");
@@ -152,6 +172,7 @@ window.switchPage = function (targetId) {
         document.getElementById(targetId).classList.add("activepage");
 
         if (targetId !== "chat-page") {
+
             stopChatListener();
         }
         if (targetId === "home") {
@@ -167,6 +188,7 @@ window.switchPage = function (targetId) {
         if (targetId === "home" && navs[1]) navs[1].classList.add("activelink");
         if (targetId === "crew" && navs[2]) navs[2].classList.add("activelink");
         if (targetId === "profile" && navs[3]) navs[3].classList.add("activelink");
+
     });
 };
 
@@ -180,6 +202,7 @@ window.toggleAuthMode = function () {
 };
 
 window.handleAuth = async function () {
+
     const email = document.getElementById("auth-email").value.trim();
     const pass = document.getElementById("auth-password").value.trim();
     const user = document.getElementById("auth-username").value.trim();
@@ -187,15 +210,19 @@ window.handleAuth = async function () {
     const errEl = document.getElementById("auth-error");
 
     try {
+
         if (isLoginMode) {
+
             await signInWithEmailAndPassword(auth, email, pass);
         } else {
+
             if (!user) {
                 throw new Error("Call sign is required.");
             }
             
             const creds = await createUserWithEmailAndPassword(auth, email, pass);
             const profile = {
+
                 username: user,
                 department: dept,
                 email: email,
@@ -207,6 +234,7 @@ window.handleAuth = async function () {
             
             await setDoc(doc(db, "users", creds.user.uid), profile);
             currentUserData = profile;
+
         }
 
         switchPage("home");
@@ -217,12 +245,14 @@ window.handleAuth = async function () {
 };
 
 window.logoutUser = async function () {
+
     try {
         if (auth.currentUser) {
             const userRef = doc(db, "users", auth.currentUser.uid);
             await updateDoc(userRef, { status: "offline" });
         }
     } catch (err) {
+
         console.error("Status update failed:", err);
     }
     
@@ -232,11 +262,13 @@ window.logoutUser = async function () {
 };
 
 onAuthStateChanged(auth, async (user) => {
+
     const nav = document.getElementById("main-nav");
     const authBox = document.getElementById("landing-auth-buttons");
     const enterBtn = document.getElementById("landing-enter-button");
 
     if (!user) {
+
         nav.style.display = "none";
         authBox.style.display = "flex";
         enterBtn.style.display = "none";
@@ -244,6 +276,7 @@ onAuthStateChanged(auth, async (user) => {
         viewingUserId = null;
 
         if (initialPageLoad) {
+
             initialPageLoad = false;
             switchPage("landing");
         }
@@ -258,6 +291,7 @@ onAuthStateChanged(auth, async (user) => {
     const snap = await getDoc(userRef);
 
     if (snap.exists()) {
+
         currentUserData = snap.data();
         if (!Array.isArray(currentUserData.friends)) currentUserData.friends = [];
         if (!currentUserData.bio) currentUserData.bio = "";
@@ -265,9 +299,11 @@ onAuthStateChanged(auth, async (user) => {
     }
     
     if (snap.exists()) {
+
         currentUserData = snap.data();
     } else {
         const fallback = {
+
             uid: user.uid,
             username: user.email.split("@")[0],
             department: "Engineering",
@@ -281,12 +317,14 @@ onAuthStateChanged(auth, async (user) => {
     }
     
     if (initialPageLoad) {
+
         initialPageLoad = false;
         switchPage("landing");
     }
 });
 
 window.submitPost = async function () {
+
     const input = document.getElementById("postcontent");
     const txt = input.value.trim();
     
@@ -295,6 +333,7 @@ window.submitPost = async function () {
 
     try {
         await addDoc(collection(db, "posts"), {
+
             content: txt,
             authorId: auth.currentUser.uid,
             authorName: currentUserData.username,
@@ -309,11 +348,14 @@ window.submitPost = async function () {
     } catch (err) {
         alert(`Could not send transmission: ${err.message}`);
     }
+
 };
 
 window.loadFeed = async function () {
+
     const feed = document.getElementById("global-feed-container");
     feed.innerHTML = "<p class='emptytext'>Fetching transmissions...</p>";
+
 
     try {
         const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
@@ -327,22 +369,27 @@ window.loadFeed = async function () {
         feed.innerHTML = "";
 
         snap.forEach((docObj) => {
+
             const data = docObj.data();
             const pid = docObj.id;
             
             const likes = Array.isArray(data.likes) ? data.likes : [];
             const replies = Array.isArray(data.replies) ? data.replies : [];
+
             
             const hasLiked = auth.currentUser && likes.includes(auth.currentUser.uid);
             const likeClass = hasLiked ? "liked" : "";
             const isMine = auth.currentUser && data.authorId === auth.currentUser.uid;
 
             const delBtn = isMine
+
                 ? `<button class="actionbtn deletebtn" onclick="deletePost('${pid}')">🗑️ Delete</button>`
                 : "";
 
             let repliesHtml = "";
+
             if (replies.length > 0) {
+
                 repliesHtml += `<div class="reply-list">`;
                 replies.forEach((rep) => {
                     const name = escapeHtml(rep.authorName || "Crewmate");
@@ -414,6 +461,7 @@ window.addReply = async function (pid) {
     const list = Array.isArray(snap.data().replies) ? snap.data().replies : [];
     
     const timeStr = new Date().toLocaleString([], {
+
         month: "short",
         day: "numeric",
         hour: "numeric",
@@ -421,6 +469,7 @@ window.addReply = async function (pid) {
     });
 
     list.push({
+
         authorId: auth.currentUser.uid,
         authorName: currentUserData.username,
         text: val,
@@ -428,15 +477,18 @@ window.addReply = async function (pid) {
     });
 
     await updateDoc(postRef, { replies: list });
+
     input.value = "";
     loadFeed();
 };
 
 window.toggleLike = async function (pid) {
+
     const postRef = doc(db, "posts", pid);
     const snap = await getDoc(postRef);
     
     if (!snap.exists() || !auth.currentUser) return;
+
 
     let likes = snap.data().likes || [];
     const uid = auth.currentUser.uid;
@@ -452,13 +504,16 @@ window.toggleLike = async function (pid) {
 };
 
 window.deletePost = async function (pid) {
+
     if (confirm("Are you sure you want to delete this transmission?")) {
+
         await deleteDoc(doc(db, "posts", pid));
         loadFeed();
     }
 };
 
 window.loadCrewRoster = async function () {
+
     const container = document.getElementById("crewgrid-container");
     container.innerHTML = "<p class='emptytext'>Scanning personnel records...</p>";
     
@@ -483,11 +538,13 @@ window.loadCrewRoster = async function () {
     });
 
     if (container.innerHTML.trim() === "") {
+
         container.innerHTML = "<p class='emptytext'>No other crew members found yet.</p>";
     }
 };
 
 window.loadMyProfile = async function () {
+
     if (!currentUserData) return;
     
     document.getElementById("my-username").innerText = currentUserData.username;
@@ -521,11 +578,13 @@ window.loadMyProfile = async function () {
     });
 
     if (wrap.innerHTML.trim() === "") {
+
         wrap.innerHTML = "<p class='emptytext'>No contacts added yet. Browse the crew roster.</p>";
     }
 };
 
 window.saveProfileEdits = async function () {
+
     if (!auth.currentUser || !currentUserData) return;
 
     const user = document.getElementById("edit-username").value.trim();
@@ -537,6 +596,7 @@ window.saveProfileEdits = async function () {
     }
 
     await updateDoc(doc(db, "users", auth.currentUser.uid), {
+
         username: user,
         bio: bio
     });
@@ -547,6 +607,7 @@ window.saveProfileEdits = async function () {
 };
 
 window.viewOtherProfile = async function (uid) {
+
     viewingUserId = uid;
     switchPage("other-profile");
     
@@ -578,6 +639,7 @@ window.viewOtherProfile = async function (uid) {
 };
 
 window.toggleFriend = async function () {
+
     if (!viewingUserId || !auth.currentUser || !currentUserData) return;
     
     let friends = Array.isArray(currentUserData.friends) ? currentUserData.friends : [];
@@ -602,6 +664,7 @@ window.toggleFriend = async function () {
 };
 
 window.openChat = async function () {
+
     if (!viewingUserId || !auth.currentUser) return;
     switchPage("chat-page");
 
@@ -656,15 +719,19 @@ window.sendChatMessage = async function () {
     input.value = "";
 
     await addDoc(collection(db, "messages"), {
+
         chatId: getChatId(uid1, uid2),
         senderId: uid1,
         text: txt,
         participants: [uid1, uid2],
         timestamp: serverTimestamp()
+
     });
+
 };
 
 document.getElementById("chat-input").addEventListener("keydown", function (e) {
+
     if (e.key === "Enter") {
         e.preventDefault();
         sendChatMessage();
